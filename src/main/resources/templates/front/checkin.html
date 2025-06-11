@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>酒店入住登记</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>客户入住登记</h1>
+    <form th:action="@{/front/checkin}" method="post" th:object="${customer}">
+        <div class="form-group">
+            <label>姓名：</label>
+            <input type="text" th:field="*{name}" required>
+        </div>
+        <div class="form-group">
+            <label>性别：</label>
+            <select th:field="*{gender}">
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>身份证号：</label>
+            <input type="text" th:field="*{idCard}" required>
+        </div>
+        <div class="form-group">
+            <label>联系电话：</label>
+            <input type="text" th:field="*{phone}">
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" th:field="*{isMember}"> 是否为会员
+            </label>
+        </div>
+        <div class="form-group">
+            <label>选择房间：</label>
+            <select name="roomNumber">
+                <option th:each="room : ${rooms}"
+                        th:value="${room.roomNumber}"
+                        th:text="${room.roomNumber} + ' (' + ${room.type} + ') - ¥' + ${room.price}"></option>
+            </select>
+        </div>
+        <button type="submit">提交登记</button>
+    </form>
+</div>
+</body>
+</html>

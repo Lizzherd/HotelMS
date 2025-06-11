@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>服务选择</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>选择额外服务</h1>
+    <p>入住记录ID: <span th:text="${recordId}"></span></p>
+
+    <h2>可用服务</h2>
+    <div class="services-list">
+        <div class="service-item" th:each="service : ${services}">
+            <h3 th:text="${service.serviceName}"></h3>
+            <p>价格: ¥<span th:text="${service.servicePrice}"></span></p>
+            <form th:action="@{/front/addService}" method="post">
+                <input type="hidden" name="recordId" th:value="${recordId}">
+                <input type="hidden" name="serviceId" th:value="${service.id}">
+                <input type="number" name="quantity" min="1" value="1">
+                <button type="submit">添加服务</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="selected-services">
+        <h2>已选服务</h2>
+        <div th:if="${#lists.isEmpty(serviceItems)}">
+            <p>尚未选择任何服务</p>
+        </div>
+        <ul th:unless="${#lists.isEmpty(serviceItems)}">
+            <li th:each="item : ${serviceItems}">
+                <span th:text="${item.serviceName}"></span> -
+                数量: <span th:text="${item.quantity}"></span> -
+                小计: ¥<span th:text="${item.subtotal}"></span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="actions">
+        <button onclick="completeCheckin()">完成入住</button>
+    </div>
+</div>
+
+<script>
+    function completeCheckin() {
+        alert("入住办理完成！");
+        window.location.href = "/";
+    }
+</script>
+</body>
+</html>

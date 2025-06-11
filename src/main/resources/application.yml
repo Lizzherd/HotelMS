@@ -1,0 +1,11 @@
+# src/main/resources/application.yml
+server:
+  port: 8080
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/hotel_db
+      database: hotel_db
+  thymeleaf:
+    cache: false # 开发时禁用缓存
