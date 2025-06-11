@@ -1,10 +1,10 @@
 package com.hotel.service.impl;
 
-import com.hotel.model.*;
+import com.hotel.model.*; // 确保引入
 import com.hotel.repository.CheckInRepository;
 import com.hotel.service.CheckInService;
-import com.hotel.service.RoomService; // 引入RoomService
-import com.hotel.service.ServiceInfoService; // 引入ServiceInfoService
+import com.hotel.service.RoomService;
+import com.hotel.service.ServiceInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +19,7 @@ public class CheckInServiceImpl implements CheckInService {
 
     private final CheckInRepository checkInRepository;
     private final RoomService roomService;
-    private final ServiceInfoService serviceInfoService;
-
+    private final ServiceInfoService serviceInfoService; // 确保注入
 
     @Autowired
     public CheckInServiceImpl(CheckInRepository checkInRepository, RoomService roomService, ServiceInfoService serviceInfoService) {
@@ -30,19 +29,16 @@ public class CheckInServiceImpl implements CheckInService {
     }
 
     @Override
-    @Transactional // 保证事务一致性
+    @Transactional
     public CheckIn processCheckIn(Customer customer, Room room, LocalDate expectedCheckOutDate) {
         if (room.isOccupied()) {
             throw new IllegalStateException("房间 " + room.getRoomNumber() + " 已被占用。");
         }
-
-        // 计算房间费用 (示例：按晚计算，实际应更复杂)
         long nights = ChronoUnit.DAYS.between(LocalDate.now(), expectedCheckOutDate);
         if (nights <= 0) {
-            nights = 1; //至少住一晚
+            nights = 1;
         }
         double roomCost = room.getPrice() * nights;
-
 
         CheckIn checkIn = new CheckIn(
                 customer.getId(),
@@ -51,13 +47,13 @@ public class CheckInServiceImpl implements CheckInService {
                 room.getId(),
                 room.getRoomNumber(),
                 expectedCheckOutDate,
-                roomCost // 传入计算好的房间总费用
+                roomCost
         );
         checkIn.setCheckInDate(LocalDate.now());
         checkIn.setActive(true);
 
         CheckIn savedCheckIn = checkInRepository.save(checkIn);
-        roomService.updateRoomOccupancy(room.getId(), true); // 更新房间状态
+        roomService.updateRoomOccupancy(room.getId(), true);
 
         return savedCheckIn;
     }
@@ -66,10 +62,11 @@ public class CheckInServiceImpl implements CheckInService {
     public Optional<CheckIn> getCheckInById(String id) {
         return checkInRepository.findById(id);
     }
-    public Optional<CheckIn> getActiveCheckInById(String id) {
-        return checkInRepository.findByIdAndIsActiveTrue(id);
-    }
 
+    @Override // <--- **确保有 @Override 注解**
+    public Optional<CheckIn> getActiveCheckInById(String id) {
+        return checkInRepository.findByIdAndIsActiveTrue(id); // 假设 CheckInRepository 中有此方法
+    }
 
     @Override
     public List<CheckIn> getActiveCheckInsByCustomer(String customerIdCardNumber) {
@@ -88,18 +85,22 @@ public class CheckInServiceImpl implements CheckInService {
 
     @Override
     public List<CheckIn> getAllCheckInHistory() {
-        return checkInRepository.findAll(); // 或者可以增加一个查询非激活的
+        return checkInRepository.findAll(); // 或者 findByIsActiveFalse()
     }
 
     @Override
     @Transactional
-    public CheckIn addServiceToCheckIn(String checkInId, com.hotel.model.ServiceInfo serviceInfoModel, int quantity) {
-        CheckIn checkIn = getActiveCheckInById(checkInId)
-                .orElseThrow(() -> new IllegalArgumentException("未找到有效的入住记录ID: " + checkInId));
+    public CheckIn addServiceToCheckIn(String checkInId, ServiceInfo serviceInfoModel, int quantity) {
+        CheckIn checkIn = getActiveCheckInById(checkInId) // 此处调用本类的方法
+                .orElseThrow(() -> new IllegalArgumentException("未找到有效的入住记录ID: " + checkInId + "，或该入住已结束。"));
 
         if (quantity <= 0) {
             throw new IllegalArgumentException("服务数量必须大于0");
         }
+
+        // ServiceInfo serviceInfoModel = serviceInfoService.getServiceInfoById(serviceInfoId)
+        // .orElseThrow(() -> new IllegalArgumentException("无效的服务ID: " + serviceInfoId));
+        // ^^^ Controller 现在直接传递 ServiceInfo 对象，所以这行不需要了
 
         CheckInServiceItem item = new CheckInServiceItem(
                 serviceInfoModel.getId(),
@@ -107,34 +108,30 @@ public class CheckInServiceImpl implements CheckInService {
                 quantity,
                 serviceInfoModel.getServicePrice()
         );
-        checkIn.addServiceItem(item); // addServiceItem内部会调用calculateTotalAmount
+        checkIn.addServiceItem(item);
         return checkInRepository.save(checkIn);
     }
-
 
     @Override
     @Transactional
     public CheckIn processCheckOut(String checkInId) {
         CheckIn checkIn = getActiveCheckInById(checkInId)
-                .orElseThrow(() -> new IllegalArgumentException("未找到有效的入住记录ID: " + checkInId));
+                .orElseThrow(() -> new IllegalArgumentException("未找到有效的入住记录ID: " + checkInId + "，或该入住已结束。"));
 
-        // 实际退房日期
         checkIn.setActualCheckOutDate(LocalDate.now());
-        checkIn.setActive(false); // 标记为非活动（已退房）
+        checkIn.setActive(false);
 
-        // 重新计算最终的房间费用（如果之前是预估）
-        // 例如，如果入住时按预计天数计算，退房时按实际天数计算
         long actualNights = ChronoUnit.DAYS.between(checkIn.getCheckInDate(), checkIn.getActualCheckOutDate());
-        if (actualNights <= 0) actualNights = 1; // 至少算一天
+        if (actualNights <= 0) actualNights = 1;
 
         Room room = roomService.getRoomById(checkIn.getRoomId())
                 .orElseThrow(() -> new IllegalStateException("退房时找不到房间信息: " + checkIn.getRoomNumber()));
 
-        checkIn.setRoomCost(room.getPrice() * actualNights); // 更新房间费用
-        checkIn.calculateTotalAmount(); // 重新计算总费用
+        checkIn.setRoomCost(room.getPrice() * actualNights);
+        checkIn.calculateTotalAmount();
 
         CheckIn updatedCheckIn = checkInRepository.save(checkIn);
-        roomService.updateRoomOccupancy(checkIn.getRoomId(), false); // 更新房间状态为未占用
+        roomService.updateRoomOccupancy(checkIn.getRoomId(), false);
 
         return updatedCheckIn;
     }
@@ -146,5 +143,4 @@ public class CheckInServiceImpl implements CheckInService {
         }
         return ChronoUnit.DAYS.between(checkInDate, checkOutDate);
     }
-
 }
