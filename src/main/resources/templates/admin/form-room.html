@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${room.id == null} ? '添加新客房' : '编辑客房'"></title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+    <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+    <main class="admin-content">
+        <h2 th:text="${room.id == null} ? '添加新客房' : '编辑客房'"></h2>
+
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/admin/rooms/save}" th:object="${room}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:field="*{occupied}" /> <!-- isOccupied 状态通常不由表单直接修改 -->
+
+            <div>
+                <label for="roomNumber">房间号:</label>
+                <input type="text" id="roomNumber" th:field="*{roomNumber}" required="required" />
+                <span th:if="${#fields.hasErrors('roomNumber')}" th:errors="*{roomNumber}" class="error-message"></span>
+            </div>
+            <div>
+                <label for="type">房间类型:</label>
+                <select id="type" th:field="*{type}" required="required">
+                    <option value="">请选择类型</option>
+                    <option th:each="rt : ${roomTypes}" th:value="${rt}" th:text="${rt.description}"></option>
+                </select>
+                <span th:if="${#fields.hasErrors('type')}" th:errors="*{type}" class="error-message"></span>
+            </div>
+            <div>
+                <label for="price">单价 (元/晚):</label>
+                <input type="number" id="price" th:field="*{price}" step="0.01" min="0" required="required" />
+                <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="error-message"></span>
+            </div>
+
+            <!-- isOccupied 状态通常由系统自动管理，不在此处编辑 -->
+            <!-- <div th:if="${room.id != null}">
+                <label for="isOccupied">是否入住:</label>
+                <input type="checkbox" id="isOccupied" th:field="*{occupied}" disabled="disabled" />
+                <span>(状态由入住/退房操作更新)</span>
+            </div> -->
+
+
+            <button type="submit" th:text="${room.id == null} ? '创建客房' : '更新客房'"></button>
+            <a th:href="@{/admin/rooms}" class="button-cancel">取消</a>
+        </form>
+    </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,36 +1,93 @@
-// src/main/java/com/hotel/model/Customer.java
 package com.hotel.model;
 
+import com.hotel.model.enums.Gender;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "customers")
 public class Customer {
     @Id
-    private String id;
-    private String name;
-    private String gender;
-    private String idCard;
-    private String phone;
-    private boolean isMember;
+    private String id; // MongoDB自动生成的ID
 
-    // 构造器、getter、setter
-    public Customer() {}
+    private String name; // 姓名
+    private Gender gender; // 性别
 
-    // 全参构造器
-    public Customer(String name, String gender, String idCard, String phone, boolean isMember) {
+    @Indexed(unique = true)
+    private String idCardNumber; // 身份证号 (唯一)
+
+    private String contactInfo; // 联系方式
+    private boolean isMember;   // 是否为会员 (可以根据MemberInfo表关联查询，或冗余存储)
+
+    public Customer() {
+    }
+
+    public Customer(String name, Gender gender, String idCardNumber, String contactInfo) {
         this.name = name;
         this.gender = gender;
-        this.idCard = idCard;
-        this.phone = phone;
-        this.isMember = isMember;
+        this.idCardNumber = idCardNumber;
+        this.contactInfo = contactInfo;
+        this.isMember = false; // 默认为非会员
     }
-    // getter和setter方法...
-    public java.lang.String getId() {
+
+    // Getters and Setters
+    public String getId() {
         return id;
     }
 
-    public java.lang.String getIdCard() {
-        return idCard;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public String getIdCardNumber() {
+        return idCardNumber;
+    }
+
+    public void setIdCardNumber(String idCardNumber) {
+        this.idCardNumber = idCardNumber;
+    }
+
+    public String getContactInfo() {
+        return contactInfo;
+    }
+
+    public void setContactInfo(String contactInfo) {
+        this.contactInfo = contactInfo;
+    }
+
+    public boolean isMember() {
+        return isMember;
+    }
+
+    public void setMember(boolean member) {
+        isMember = member;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", gender=" + gender +
+                ", idCardNumber='" + idCardNumber + '\'' +
+                ", contactInfo='" + contactInfo + '\'' +
+                ", isMember=" + isMember +
+                '}';
     }
 }

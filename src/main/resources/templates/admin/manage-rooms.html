@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>客房管理</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2>客房管理</h2>
+    <a th:href="@{/admin/rooms/new}" class="button">添加新客房</a>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <table class="table" th:if="${not #lists.isEmpty(rooms)}">
+      <thead>
+      <tr>
+        <th>房间号</th>
+        <th>类型</th>
+        <th>单价</th>
+        <th>是否入住</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="room : ${rooms}">
+        <td th:text="${room.roomNumber}">R101</td>
+        <td th:text="${room.type.description}">单人间</td>
+        <td th:text="${'￥' + #numbers.formatDecimal(room.price, 1, 'COMMA', 2, 'POINT')}">200.00</td>
+        <td>
+          <span th:if="${room.isOccupied}" class="status-occupied">已入住</span>
+          <span th:unless="${room.isOccupied}" class="status-available">未入住</span>
+        </td>
+        <td>
+          <a th:href="@{'/admin/rooms/edit/' + ${room.id}}" class="button-edit">编辑</a>
+          <a th:href="@{'/admin/rooms/delete/' + ${room.id}}"
+             onclick="return confirm('确定要删除这个房间吗？如果房间当前有人入住，操作将失败。');"
+             class="button-delete"
+             th:classappend="${room.isOccupied} ? 'disabled-link' : ''">删除</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(rooms)}">暂无客房信息。</p>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

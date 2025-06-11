@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>登记新会员</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2>登记新会员</h2>
+    <p>为现有客户登记或升级会员等级。</p>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <form th:action="@{/admin/members/register}" method="post">
+      <div>
+        <label for="customerIdCardNumber">选择客户 (身份证号):</label>
+        <select id="customerIdCardNumber" name="customerIdCardNumber" required="required">
+          <option value="">-- 请选择客户 --</option>
+          <optgroup th:each="customer : ${customers}" th:label="${customer.name + ' (' + customer.idCardNumber + ')'}">
+            <option th:value="${customer.idCardNumber}" th:text="${customer.name + ' - ' + customer.idCardNumber + (customer.isMember() ? ' (当前会员)' : ' (非会员)')}"></option>
+          </optgroup>
+        </select>
+        <small>仅显示尚未成为会员或可以升级的客户。如果客户不存在，请先 <a th:href="@{/admin/customers/new}">创建客户信息</a>。</small>
+      </div>
+
+      <div>
+        <label for="memberLevel">选择会员等级:</label>
+        <select id="memberLevel" name="memberLevel" required="required">
+          <option value="">-- 请选择等级 --</option>
+          <option th:each="level : ${memberLevels}" th:value="${level}" th:text="${level.description}" th:disabled="${level.name() == 'NONE'}"></option>
+        </select>
+      </div>
+
+      <button type="submit">登记/更新会员</button>
+      <a th:href="@{/admin/members}" class="button-cancel">取消</a>
+    </form>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${customer.id == null} ? '添加新客户' : '编辑客户'"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2 th:text="${customer.id == null} ? '添加新客户' : '编辑客户'"></h2>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/admin/customers/save}" th:object="${customer}" method="post">
+      <input type="hidden" th:field="*{id}" />
+      <input type="hidden" th:field="*{member}" /> <!-- isMember 状态由会员管理模块控制 -->
+
+      <div>
+        <label for="idCardNumber">身份证号:</label>
+        <input type="text" id="idCardNumber" th:field="*{idCardNumber}" required="required" th:readonly="${customer.id != null}" />
+        <span th:if="${#fields.hasErrors('idCardNumber')}" th:errors="*{idCardNumber}" class="error-message"></span>
+        <small th:if="${customer.id != null}">(身份证号不可修改)</small>
+      </div>
+      <div>
+        <label for="name">姓名:</label>
+        <input type="text" id="name" th:field="*{name}" required="required" />
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-message"></span>
+      </div>
+      <div>
+        <label for="gender">性别:</label>
+        <select id="gender" th:field="*{gender}" required="required">
+          <option value="">请选择</option>
+          <option th:each="g : ${genders}" th:value="${g}" th:text="${g.description}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}" class="error-message"></span>
+      </div>
+      <div>
+        <label for="contactInfo">联系方式:</label>
+        <input type="text" id="contactInfo" th:field="*{contactInfo}" required="required" />
+        <span th:if="${#fields.hasErrors('contactInfo')}" th:errors="*{contactInfo}" class="error-message"></span>
+      </div>
+
+      <button type="submit" th:text="${customer.id == null} ? '创建客户' : '更新客户'"></button>
+      <a th:href="@{/admin/customers}" class="button-cancel">取消</a>
+    </form>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

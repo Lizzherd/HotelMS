@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${serviceInfo.id == null} ? '添加新服务' : '编辑服务'"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2 th:text="${serviceInfo.id == null} ? '添加新服务' : '编辑服务'"></h2>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/admin/services/save}" th:object="${serviceInfo}" method="post">
+      <input type="hidden" th:field="*{id}" />
+
+      <div>
+        <label for="serviceName">服务名称:</label>
+        <input type="text" id="serviceName" th:field="*{serviceName}" required="required" />
+        <span th:if="${#fields.hasErrors('serviceName')}" th:errors="*{serviceName}" class="error-message"></span>
+      </div>
+      <div>
+        <label for="servicePrice">服务单价 (元):</label>
+        <input type="number" id="servicePrice" th:field="*{servicePrice}" step="0.01" min="0" required="required" />
+        <span th:if="${#fields.hasErrors('servicePrice')}" th:errors="*{servicePrice}" class="error-message"></span>
+      </div>
+
+      <button type="submit" th:text="${serviceInfo.id == null} ? '创建服务' : '更新服务'"></button>
+      <a th:href="@{/admin/services}" class="button-cancel">取消</a>
+    </form>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

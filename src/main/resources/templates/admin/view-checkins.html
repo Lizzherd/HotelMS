@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${showingHistory} ? '历史入住记录' : '当前入住记录'"></title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2 th:text="${showingHistory} ? '历史入住记录' : '当前入住记录'"></h2>
+
+    <div class="tab-navigation">
+      <a th:href="@{/admin/checkins(viewType='active')}" th:classappend="${!showingHistory} ? 'active' : ''">当前入住</a>
+      <a th:href="@{/admin/checkins(viewType='history')}" th:classappend="${showingHistory} ? 'active' : ''">历史记录</a>
+    </div>
+
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <table class="table" th:if="${not #lists.isEmpty(checkIns)}">
+      <thead>
+      <tr>
+        <th>客户姓名</th>
+        <th>身份证号</th>
+        <th>房间号</th>
+        <th>入住日期</th>
+        <th>预计离店</th>
+        <th th:if="${showingHistory}">实际离店</th>
+        <th>总金额</th>
+        <th>状态</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="checkIn : ${checkIns}">
+        <td th:text="${checkIn.customerName}">张三</td>
+        <td th:text="${checkIn.customerIdCardNumber}">123...</td>
+        <td th:text="${checkIn.roomNumber}">R101</td>
+        <td th:text="${#temporals.format(checkIn.checkInDate, 'yyyy-MM-dd')}"></td>
+        <td th:text="${#temporals.format(checkIn.expectedCheckOutDate, 'yyyy-MM-dd')}"></td>
+        <td th:if="${showingHistory}" th:text="${checkIn.actualCheckOutDate != null ? #temporals.format(checkIn.actualCheckOutDate, 'yyyy-MM-dd') : '-'}"></td>
+        <td th:text="${'￥' + #numbers.formatDecimal(checkIn.totalAmount, 1, 'COMMA', 2, 'POINT')}"></td>
+        <td>
+          <span th:if="${checkIn.isActive}" class="status-active">入住中</span>
+          <span th:unless="${checkIn.isActive}" class="status-inactive">已退房</span>
+        </td>
+        <td>
+          <a th:href="@{'/admin/checkins/details/' + ${checkIn.id}}" class="button">详情</a>
+          <form th:if="${checkIn.isActive}" th:action="@{'/admin/checkins/checkout/' + ${checkIn.id}}" method="post" style="display:inline;">
+            <button type="submit" class="button-delete" onclick="return confirm('确定为该客户办理退房吗？');">办理退房</button>
+          </form>
+          <a th:if="${checkIn.isActive}" th:href="@{'/admin/checkins/addservice/' + ${checkIn.id}}" class="button-edit">添加服务</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(checkIns)}">暂无相关入住记录。</p>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<style>
+  .tab-navigation { margin-bottom: 20px; }
+  .tab-navigation a { padding: 10px 15px; text-decoration: none; color: #007bff; border: 1px solid #ddd; margin-right: -1px;}
+  .tab-navigation a.active { background-color: #007bff; color: white; border-color: #007bff;}
+</style>
+</body>
+</html>

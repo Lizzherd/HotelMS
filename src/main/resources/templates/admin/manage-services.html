@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>服务管理</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2>服务管理</h2>
+    <a th:href="@{/admin/services/new}" class="button">添加新服务</a>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <table class="table" th:if="${not #lists.isEmpty(services)}">
+      <thead>
+      <tr>
+        <th>服务名称</th>
+        <th>服务单价</th>
+        <th>操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="service : ${services}">
+        <td th:text="${service.serviceName}">洗衣服务</td>
+        <td th:text="${'￥' + #numbers.formatDecimal(service.servicePrice, 1, 'COMMA', 2, 'POINT')}">50.00</td>
+        <td>
+          <a th:href="@{'/admin/services/edit/' + ${service.id}}" class="button-edit">编辑</a>
+          <a th:href="@{'/admin/services/delete/' + ${service.id}}"
+             onclick="return confirm('确定要删除这个服务吗？');"
+             class="button-delete">删除</a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    <p th:if="${#lists.isEmpty(services)}">暂无服务信息。</p>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

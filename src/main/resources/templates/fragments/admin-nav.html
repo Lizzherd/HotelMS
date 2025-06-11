@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="admin-nav" class="admin-sidebar">
+  <h2>管理菜单</h2>
+  <ul>
+    <li><a th:href="@{/admin}">仪表盘</a></li>
+    <li><a th:href="@{/admin/customers}">客户管理</a></li>
+    <li><a th:href="@{/admin/rooms}">客房管理</a></li>
+    <li><a th:href="@{/admin/services}">服务管理</a></li>
+    <li><a th:href="@{/admin/members}">会员管理</a></li>
+    <li><a th:href="@{/admin/checkins}">入住记录</a></li>
+    <li><a th:href="@{/admin/checkins(viewType='history')}">历史入住</a></li>
+  </ul>
+  <hr>
+  <a th:href="@{/}" class="nav-link">返回用户区</a>
+</nav>
+</body>
+</html>

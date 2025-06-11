@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>酒店管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div class="container">
+    <h1>欢迎来到酒店管理系统</h1>
+    <p>请选择您的操作：</p>
+    <ul>
+        <li><a th:href="@{/user/checkin}">用户入住登记</a></li>
+        <li><a th:href="@{/admin}">后台管理</a></li>
+    </ul>
+    <!-- 显示来自 Controller 的消息 -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

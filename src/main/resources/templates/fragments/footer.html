@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="footer" class="footer">
+  <p>&copy; <span th:text="${#dates.year(#dates.createNow())}"></span> 酒店管理系统. 版权所有.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="header">
+  <nav class="navbar">
+    <a th:href="@{/}" class="navbar-brand">酒店管理系统</a>
+    <div>
+      <a th:href="@{/user/checkin}" class="nav-link">入住</a>
+      <a th:href="@{/admin}" class="nav-link">管理后台</a>
+    </div>
+  </nav>
+</header>
+</body>
+</html>

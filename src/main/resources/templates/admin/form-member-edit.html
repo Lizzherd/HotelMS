@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>编辑会员信息</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2>编辑会员信息</h2>
+    <p>客户: <strong th:text="${customerName ?: '未知'}"></strong> (<span th:text="${memberInfo.idCardNumber}"></span>)</p>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <form th:action="@{/admin/members/save}" th:object="${memberInfo}" method="post">
+      <input type="hidden" th:field="*{id}" />
+      <input type="hidden" th:field="*{idCardNumber}" /> <!-- 身份证号通常不可编辑 -->
+
+      <div>
+        <label for="memberLevel">会员等级:</label>
+        <select id="memberLevel" th:field="*{memberLevel}" required="required">
+          <option th:each="level : ${memberLevels}" th:value="${level}" th:text="${level.description}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('memberLevel')}" th:errors="*{memberLevel}" class="error-message"></span>
+      </div>
+
+      <div>
+        <label for="registrationDate">注册日期:</label>
+        <input type="date" id="registrationDate" th:field="*{registrationDate}" required="required" />
+        <span th:if="${#fields.hasErrors('registrationDate')}" th:errors="*{registrationDate}" class="error-message"></span>
+      </div>
+
+      <button type="submit">更新会员信息</button>
+      <a th:href="@{/admin/members}" class="button-cancel">取消</a>
+    </form>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

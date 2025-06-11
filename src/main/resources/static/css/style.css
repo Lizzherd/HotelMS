@@ -1,66 +1,221 @@
-/* 基本样式 */
 body {
-    font-family: Arial, sans-serif;
+    font-family: sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f5f5f5;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 .container {
-    max-width: 800px;
-    margin: 20px auto;
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
     padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #fff;
+    flex-grow: 1;
 }
 
-.form-group {
+header {
+    background: #333;
+    color: #fff;
+    padding: 1rem 0;
+    border-bottom: #0779e4 3px solid;
+}
+
+.navbar {
+    width: 80%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+}
+.nav-link:hover {
+    color: #0779e4;
+}
+
+.footer {
+    background: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.error-message {
+    color: red;
+    font-size: 0.9em;
+}
+
+
+/* Admin Layout */
+.admin-layout {
+    display: flex;
+    width: 90%;
+    margin: 20px auto;
+    background-color: #fff;
+    min-height: 70vh; /* Ensure content area has some height */
+}
+
+.admin-sidebar {
+    width: 200px;
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-right: 1px solid #ddd;
+}
+.admin-sidebar h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+.admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+.admin-sidebar ul li a {
+    display: block;
+    padding: 8px 0;
+    color: #007bff;
+    text-decoration: none;
+}
+.admin-sidebar ul li a:hover {
+    text-decoration: underline;
+}
+
+
+.admin-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+/* Tables */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+.table th {
+    background-color: #f2f2f2;
+}
+
+/* Forms */
+form div {
     margin-bottom: 15px;
 }
-
-label {
+form label {
     display: block;
     margin-bottom: 5px;
-    font-weight: bold;
 }
-
-input, select {
-    width: 100%;
-    padding: 8px;
+form input[type="text"],
+form input[type="number"],
+form input[type="password"],
+form input[type="email"],
+form input[type="date"],
+form select,
+form textarea {
+    width: calc(100% - 22px); /* Adjust for padding and border */
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+form input[type="checkbox"] {
+    margin-right: 5px;
+}
 
-button {
-    background-color: #4CAF50;
+/* Buttons */
+.button, button {
+    display: inline-block;
+    background-color: #007bff;
     color: white;
     padding: 10px 15px;
+    text-decoration: none;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin-right: 5px;
+    margin-top: 5px;
+}
+.button:hover, button:hover {
+    background-color: #0056b3;
+}
+.button-edit { background-color: #ffc107; color: #212529; }
+.button-edit:hover { background-color: #e0a800; }
+.button-delete { background-color: #dc3545; }
+.button-delete:hover { background-color: #c82333; }
+.button-cancel { background-color: #6c757d; }
+.button-cancel:hover { background-color: #5a6268; }
+.button-primary { background-color: #28a745; } /* Green for primary actions like 'Complete' */
+.button-primary:hover { background-color: #218838; }
+
+
+.disabled-link {
+    pointer-events: none;
+    opacity: 0.6;
+    background-color: #ccc !important;
 }
 
-button:hover {
-    background-color: #45a049;
-}
+/* Status indicators */
+.status-occupied, .status-active { color: red; font-weight: bold; }
+.status-available, .status-inactive { color: green; }
 
-.services-list {
+/* Dashboard stats */
+.dashboard-stats {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    justify-content: space-around;
+    margin-bottom: 20px;
 }
+.stat-card {
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+    min-width: 150px;
+}
+.stat-card h3 { margin-top: 0; font-size: 1em; }
+.stat-card p { font-size: 1.8em; font-weight: bold; margin-bottom: 0;}
 
-.service-item {
+fieldset {
     border: 1px solid #ddd;
     padding: 15px;
-    border-radius: 8px;
-    width: 200px;
+    margin-bottom: 20px;
+    border-radius: 4px;
 }
-
-.stat-card {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
+legend {
+    font-weight: bold;
+    padding: 0 10px;
 }

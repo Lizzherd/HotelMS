@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>入住记录详情</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2>入住记录详情</h2>
+    <a th:href="@{/admin/checkins(viewType=${checkIn.isActive()} ? 'active' : 'history')}" class="button">返回列表</a>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+    <div th:if="${checkIn != null}">
+      <h3>基本信息</h3>
+      <table class="table">
+        <tr><th>入住ID</th><td th:text="${checkIn.id}"></td></tr>
+        <tr><th>客户姓名</th><td th:text="${checkIn.customerName}"></td></tr>
+        <tr><th>客户身份证</th><td th:text="${checkIn.customerIdCardNumber}"></td></tr>
+        <tr><th>房间号</th><td th:text="${checkIn.roomNumber}"></td></tr>
+        <tr>
+          <th>入住日期</th>
+          <td th:text="${#temporals.format(checkIn.checkInDate, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        <tr>
+          <th>预计离店日期</th>
+          <td th:text="${#temporals.format(checkIn.expectedCheckOutDate, 'yyyy-MM-dd')}"></td>
+        </tr>
+        <tr th:if="${!checkIn.isActive() && checkIn.actualCheckOutDate != null}">
+          <th>实际离店日期</th>
+          <td th:text="${#temporals.format(checkIn.actualCheckOutDate, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        <tr>
+          <th>状态</th>
+          <td>
+            <span th:if="${checkIn.isActive}" class="status-active">入住中</span>
+            <span th:unless="${checkIn.isActive}" class="status-inactive">已退房</span>
+          </td>
+        </tr>
+      </table>
+
+      <h3>费用明细</h3>
+      <table class="table">
+        <tr><th>房间费用</th><td th:text="${'￥' + #numbers.formatDecimal(checkIn.roomCost, 1, 'COMMA', 2, 'POINT')}"></td></tr>
+        <tr><th>服务总费用</th><td th:text="${'￥' + #numbers.formatDecimal(checkIn.servicesCost, 1, 'COMMA', 2, 'POINT')}"></td></tr>
+        <tr><th><strong>总金额</strong></th><td><strong th:text="${'￥' + #numbers.formatDecimal(checkIn.totalAmount, 1, 'COMMA', 2, 'POINT')}"></strong></td></tr>
+      </table>
+
+
+      <h3>已选服务</h3>
+      <div th:if="${checkIn.services == null or checkIn.services.isEmpty()}">
+        <p>该入住记录没有附加服务。</p>
+      </div>
+      <table class="table" th:unless="${checkIn.services == null or checkIn.services.isEmpty()}">
+        <thead>
+        <tr>
+          <th>服务名称</th>
+          <th>数量</th>
+          <th>单价</th>
+          <th>小计</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${checkIn.services}">
+          <td th:text="${item.serviceName}"></td>
+          <td th:text="${item.quantity}"></td>
+          <td th:text="${'￥' + #numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+          <td th:text="${'￥' + #numbers.formatDecimal(item.subtotal, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top: 20px;" th:if="${checkIn.isActive()}">
+        <a th:href="@{'/admin/checkins/addservice/' + ${checkIn.id}}" class="button-edit">为此入住添加服务</a>
+        <form th:action="@{'/admin/checkins/checkout/' + ${checkIn.id}}" method="post" style="display:inline;">
+          <button type="submit" class="button-delete" onclick="return confirm('确定为该客户办理退房吗？');">办理退房</button>
+        </form>
+      </div>
+
+    </div>
+    <div th:if="${checkIn == null}">
+      <p>未找到指定的入住记录。</p>
+    </div>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

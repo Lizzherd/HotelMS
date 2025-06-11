@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>用户入住登记</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="container">
+  <h2>用户入住登记</h2>
+
+  <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+  <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+  <form th:action="@{/user/checkin}" th:object="${customer}" method="post">
+    <fieldset>
+      <legend>客户信息</legend>
+      <div>
+        <label for="idCardNumber">身份证号:</label>
+        <input type="text" id="idCardNumber" th:field="*{idCardNumber}" required="required" />
+        <button type="button" id="fetchCustomerBtn">获取信息</button>
+      </div>
+      <div>
+        <label for="name">姓名:</label>
+        <input type="text" id="name" th:field="*{name}" required="required" />
+      </div>
+      <div>
+        <label for="gender">性别:</label>
+        <select id="gender" th:field="*{gender}" required="required">
+          <option value="">请选择</option>
+          <option th:each="g : ${genders}" th:value="${g}" th:text="${g.description}"></option>
+        </select>
+      </div>
+      <div>
+        <label for="contactInfo">联系方式:</label>
+        <input type="text" id="contactInfo" th:field="*{contactInfo}" required="required" />
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>入住信息</legend>
+      <div>
+        <label for="roomId">选择房间:</label>
+        <select id="roomId" name="roomId" required="required">
+          <option value="">请选择可用房间</option>
+          <option th:each="room : ${availableRooms}"
+                  th:value="${room.id}"
+                  th:text="${room.roomNumber + ' - ' + room.type.description + ' (￥' + room.price + ')'}"></option>
+        </select>
+      </div>
+      <div>
+        <label for="expectedCheckOutDate">预计离店日期:</label>
+        <input type="date" id="expectedCheckOutDate" name="expectedCheckOutDate" required="required" th:min="${#dates.format(#dates.createNowPlusDays(1), 'yyyy-MM-dd')}"/>
+      </div>
+    </fieldset>
+
+    <button type="submit">提交入住</button>
+  </form>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/jquery-3.6.0.min.js}"></script> <!-- 引入jQuery, 如果没有可以下载或用原生JS -->
+<script>
+  // 简单的JS用于根据身份证号获取客户信息
+  document.addEventListener('DOMContentLoaded', function() {
+      const fetchButton = document.getElementById('fetchCustomerBtn');
+      if(fetchButton) {
+          fetchButton.addEventListener('click', function() {
+              const idCard = document.getElementById('idCardNumber').value;
+              if (idCard) {
+                  fetch(`/user/api/customer/${idCard}`)
+                      .then(response => {
+                          if (!response.ok) {
+                              if (response.status === 404) return null; //未找到
+                              throw new Error('网络错误');
+                          }
+                          return response.json();
+                      })
+                      .then(data => {
+                          if (data) {
+                              document.getElementById('name').value = data.name || '';
+                              document.getElementById('contactInfo').value = data.contactInfo || '';
+                              const genderSelect = document.getElementById('gender');
+                              if (data.gender) {
+                                  for (let i = 0; i < genderSelect.options.length; i++) {
+                                      if (genderSelect.options[i].value === data.gender) {
+                                          genderSelect.selectedIndex = i;
+                                          break;
+                                      }
+                                  }
+                              } else {
+                                   genderSelect.selectedIndex = 0;
+                              }
+                               alert('客户信息已加载。');
+                          } else {
+                              alert('未找到该身份证号的客户信息，请填写新客户资料。');
+                              // 可以选择清空其他字段
+                              // document.getElementById('name').value = '';
+                              // document.getElementById('contactInfo').value = '';
+                              // document.getElementById('gender').selectedIndex = 0;
+                          }
+                      })
+                      .catch(error => {
+                          console.error('获取客户信息失败:', error);
+                          alert('获取客户信息失败，请检查网络或稍后再试。');
+                      });
+              } else {
+                  alert('请输入身份证号。');
+              }
+          });
+      }
+       // 设置预计离店日期默认为明天
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const yyyy = tomorrow.getFullYear();
+      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const dd = String(tomorrow.getDate()).padStart(2, '0');
+      const minDate = `${yyyy}-${mm}-${dd}`;
+
+      const expectedCheckOutDateInput = document.getElementById('expectedCheckOutDate');
+      if(expectedCheckOutDateInput){
+          expectedCheckOutDateInput.setAttribute('min', minDate);
+          if (!expectedCheckOutDateInput.value) { // 如果没有默认值，设置为明天
+              // expectedCheckOutDateInput.value = minDate; // 可选：默认填充
+          }
+      }
+  });
+</script>
+</body>
+</html>
