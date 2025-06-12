@@ -6,6 +6,8 @@ import com.hotel.repository.RoomRepository;
 import com.hotel.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -91,5 +93,11 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new IllegalArgumentException("未找到房间ID: " + roomId));
         room.setOccupied(isOccupied);
         return roomRepository.save(room);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllRooms() {
+        roomRepository.deleteAll();
     }
 }

@@ -13,4 +13,5 @@ public interface MemberInfoService {
     MemberInfo updateMemberInfo(String id, MemberInfo memberInfoDetails);
     void deleteMemberInfo(String id);
     MemberInfo registerOrUpdateMember(String customerIdCardNumber, MemberLevel level);
+    void deleteAllMemberInfos();
 }

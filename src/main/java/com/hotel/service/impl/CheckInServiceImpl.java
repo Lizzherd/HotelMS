@@ -143,4 +143,13 @@ public class CheckInServiceImpl implements CheckInService {
         }
         return ChronoUnit.DAYS.between(checkInDate, checkOutDate);
     }
+
+    @Override
+    @Transactional
+    public void deleteAllCheckIns() {
+        checkInRepository.deleteAll();
+        // 注意：如果 Room 表中还有 isOccupied 字段，理论上在删除所有 CheckIn 后，
+        // 应该将所有 Room 的 isOccupied 更新为 false。
+        // 但由于我们也会删除所有 Room，所以这一步可以省略。
+    }
 }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登录</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="login-container">
+    <h2>管理员登录</h2>
+
+    <!-- 用于显示登录错误或成功退出消息 -->
+    <div th:if="${param.error}" class="alert alert-danger">
+        无效的密钥。请重试。
+    </div>
+    <div th:if="${param.logout}" class="alert alert-success">
+        您已成功退出。
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <div th:if="${logoutMessage}" class="alert alert-success" th:text="${logoutMessage}"></div>
+
+
+    <form th:action="@{/admin/login}" method="post">
+        <div>
+            <label for="secretKey">密钥:</label>
+            <input type="password" id="secretKey" name="secretKey" required="required" style="width: calc(100% - 22px);"/>
+        </div>
+        <button type="submit" style="width: 100%;">登录</button>
+    </form>
+    <div style="text-align: center; margin-top: 20px;">
+        <a th:href="@{/}">返回首页</a>
+    </div>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

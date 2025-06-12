@@ -29,4 +29,6 @@ public interface CheckInService {
     CheckIn processCheckOut(String checkInId);
 
     double calculateStayDuration(LocalDate checkInDate, LocalDate checkOutDate);
+
+    void deleteAllCheckIns();
 }

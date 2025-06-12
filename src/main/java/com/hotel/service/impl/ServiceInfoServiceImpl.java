@@ -5,6 +5,8 @@ import com.hotel.repository.ServiceInfoRepository;
 import com.hotel.service.ServiceInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -70,5 +72,11 @@ public class ServiceInfoServiceImpl implements ServiceInfoService {
     @Override
     public boolean serviceNameExists(String serviceName) {
         return serviceInfoRepository.existsByServiceName(serviceName);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllServiceInfos() {
+        serviceInfoRepository.deleteAll();
     }
 }

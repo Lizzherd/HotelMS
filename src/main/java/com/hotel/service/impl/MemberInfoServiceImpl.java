@@ -112,4 +112,10 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         }
         memberInfoRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional
+    public void deleteAllMemberInfos() {
+        memberInfoRepository.deleteAll();
+    }
 }

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>管理后台 - 仪表盘</title>
+  <title>后台管理仪表盘</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -11,16 +11,17 @@
   <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
   <main class="admin-content">
     <h2>仪表盘</h2>
+
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
     <div class="dashboard-stats">
       <div class="stat-card">
-        <h3>当前入住数</h3>
+        <h3>当前入住</h3>
         <p th:text="${activeCheckInsCount}">0</p>
       </div>
       <div class="stat-card">
-        <h3>可用房间数</h3>
+        <h3>可用客房</h3>
         <p th:text="${availableRoomsCount}">0</p>
       </div>
       <div class="stat-card">
@@ -32,7 +33,18 @@
         <p th:text="${totalMembersCount}">0</p>
       </div>
     </div>
-    <p>欢迎来到酒店管理后台。</p>
+
+    <hr style="margin: 30px 0;">
+
+    <div>
+      <h3>系统重启</h3>
+      <a th:href="@{/admin/perform-reset-all-data}"
+         class="button button-danger"
+         onclick="return confirm('【警告】此操作将删除所有客户、客房、服务、会员和入住记录！\n\n您确定要重置所有系统数据吗？\n\n此操作不可逆转！');">
+        重置所有系统记录 (调试用)
+      </a>
+    </div>
+
   </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>

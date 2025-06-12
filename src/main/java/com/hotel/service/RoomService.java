@@ -16,4 +16,5 @@ public interface RoomService {
     void deleteRoom(String id);
     boolean roomNumberExists(String roomNumber);
     Room updateRoomOccupancy(String roomId, boolean isOccupied);
+    void deleteAllRooms();
 }

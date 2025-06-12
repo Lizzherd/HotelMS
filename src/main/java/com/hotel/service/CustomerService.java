@@ -12,4 +12,5 @@ public interface CustomerService {
     Customer updateCustomer(String id, Customer customerDetails);
     void deleteCustomer(String id);
     boolean idCardExists(String idCardNumber);
+    void deleteAllCustomers();
 }

@@ -5,6 +5,8 @@ import com.hotel.repository.CustomerRepository;
 import com.hotel.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -74,5 +76,11 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public boolean idCardExists(String idCardNumber) {
         return customerRepository.existsByIdCardNumber(idCardNumber);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllCustomers() {
+        customerRepository.deleteAll();
     }
 }

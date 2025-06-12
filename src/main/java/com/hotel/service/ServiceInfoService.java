@@ -12,4 +12,5 @@ public interface ServiceInfoService {
     ServiceInfo updateServiceInfo(String id, ServiceInfo serviceInfoDetails);
     void deleteServiceInfo(String id);
     boolean serviceNameExists(String serviceName);
+    void deleteAllServiceInfos();
 }
