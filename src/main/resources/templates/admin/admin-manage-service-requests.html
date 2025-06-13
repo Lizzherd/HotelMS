@@ -30,7 +30,7 @@
         <td th:text="${req.roomNumber}"></td>
         <td th:text="${req.serviceName}"></td>
         <td th:text="${req.quantity}"></td>
-        <td th:text="${#dates.format(req.requestTime, 'yyyy-MM-dd HH:mm')}"></td>
+        <td th:text="${#temporals.format(req.requestTime, 'yyyy-MM-dd HH:mm')}"></td>
         <td>
           <span th:if="${req.status == 'APPLIED'}">申请中</span>
           <span th:if="${req.status == 'COMPLETED'}" style="color:green;">已完成</span>

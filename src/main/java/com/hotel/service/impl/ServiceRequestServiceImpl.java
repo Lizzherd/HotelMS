@@ -5,6 +5,7 @@ import com.hotel.repository.ServiceRequestRepository;
 import com.hotel.service.ServiceRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,4 +55,9 @@ public class ServiceRequestServiceImpl implements ServiceRequestService {
         req.setCompletedTime(LocalDateTime.now());
         serviceRequestRepository.save(req);
     }
+
+
+    @Override
+    @Transactional
+    public void deleteAllServiceInfos() {serviceRequestRepository.deleteAll();}
 }

@@ -1,6 +1,8 @@
 package com.hotel.service;
 
 import com.hotel.model.ServiceRequest;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 public interface ServiceRequestService {
@@ -10,4 +12,6 @@ public interface ServiceRequestService {
     List<ServiceRequest> findAll();
     void markCompleted(String requestId, String adminNote);
     void markRejected(String requestId, String adminNote);
+    @Transactional
+    void deleteAllServiceInfos();
 }

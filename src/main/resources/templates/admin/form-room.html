@@ -15,7 +15,9 @@
         <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
         <form th:action="@{/admin/rooms/save}" th:object="${room}" method="post">
-            <input type="hidden" th:field="*{id}" />
+            <th:block th:if="${room.id != null}">
+                <input type="hidden" th:field="*{id}" />
+            </th:block>
             <input type="hidden" th:field="*{occupied}" /> <!-- isOccupied 状态通常不由表单直接修改 -->
 
             <div>

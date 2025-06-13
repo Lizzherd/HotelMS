@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -25,9 +26,13 @@ public class UserServiceController {
     @Autowired
     private CheckInService checkInService;
 
-    // 服务申请界面首页（输入房间号）
+    // 服务申请界面首页（输入房间号），一定要补全所有模板变量，防止初次访问时报错
     @GetMapping("")
-    public String serviceHome() {
+    public String serviceHome(Model model) {
+        model.addAttribute("roomNumber", null);
+        model.addAttribute("checkIn", null);
+        model.addAttribute("allServices", Collections.emptyList());
+        model.addAttribute("myRequests", Collections.emptyList());
         return "user/user-service";
     }
 
@@ -38,6 +43,8 @@ public class UserServiceController {
         if (actives.isEmpty()) {
             model.addAttribute("roomNumber", roomNumber);
             model.addAttribute("checkIn", null);
+            model.addAttribute("allServices", serviceInfoService.getAllServiceInfos());
+            model.addAttribute("myRequests", Collections.emptyList());
             return "user/user-service";
         }
         // 如有多条可让用户选择，这里默认取第一条

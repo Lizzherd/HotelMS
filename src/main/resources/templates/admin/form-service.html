@@ -14,7 +14,9 @@
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
     <form th:action="@{/admin/services/save}" th:object="${serviceInfo}" method="post">
-      <input type="hidden" th:field="*{id}" />
+      <th:block th:if="${customer.id != null}">
+        <input type="hidden" th:field="*{id}" />
+      </th:block>
 
       <div>
         <label for="serviceName">服务名称:</label>

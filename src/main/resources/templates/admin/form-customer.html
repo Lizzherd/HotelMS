@@ -14,7 +14,10 @@
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
     <form th:action="@{/admin/customers/save}" th:object="${customer}" method="post">
-      <input type="hidden" th:field="*{id}" />
+      <!-- 仅在编辑客户时才输出id字段 -->
+      <th:block th:if="${customer.id != null}">
+        <input type="hidden" th:field="*{id}" />
+      </th:block>
       <input type="hidden" th:field="*{member}" /> <!-- isMember 状态由会员管理模块控制 -->
 
       <div>
