@@ -14,9 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin")
@@ -27,6 +28,7 @@ public class AdminController {
     private final ServiceInfoService serviceInfoService;
     private final MemberInfoService memberInfoService;
     private final CheckInService checkInService;
+    private final ServiceRequestService serviceRequestService;
 
     @Value("${admin.secret-key}")
     private String adminSecretKey;
@@ -36,12 +38,14 @@ public class AdminController {
     @Autowired
     public AdminController(CustomerService customerService, RoomService roomService,
                            ServiceInfoService serviceInfoService, MemberInfoService memberInfoService,
-                           CheckInService checkInService) {
+                           CheckInService checkInService,
+                           ServiceRequestService serviceRequestService) {
         this.customerService = customerService;
         this.roomService = roomService;
         this.serviceInfoService = serviceInfoService;
         this.memberInfoService = memberInfoService;
         this.checkInService = checkInService;
+        this.serviceRequestService = serviceRequestService;
     }
 
     private boolean isAdminLoggedIn(HttpSession session) {
@@ -92,7 +96,6 @@ public class AdminController {
         return "admin/admin-dashboard";
     }
 
-    // --- 数据重置 ---
     @GetMapping("/perform-reset-all-data")
     public String performResetAllData(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
@@ -100,31 +103,20 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "请先登录。");
             return "redirect:/admin/login";
         }
-
         try {
-            // 删除顺序很重要，避免因关联关系导致删除失败（尽管MongoDB关系不严格，但逻辑上应如此）
-            // 1. 删除入住记录 (释放房间占用状态，虽然房间也会被删)
             checkInService.deleteAllCheckIns();
-            // 2. 删除会员信息 (解除客户的会员状态，虽然客户也会被删)
             memberInfoService.deleteAllMemberInfos();
-            // 3. 删除客户
             customerService.deleteAllCustomers();
-            // 4. 删除房间
             roomService.deleteAllRooms();
-            // 5. 删除服务项目
             serviceInfoService.deleteAllServiceInfos();
-
             redirectAttributes.addFlashAttribute("successMessage", "所有系统记录已成功重置！");
         } catch (Exception e) {
-            // 日志记录错误 e.g., log.error("Error resetting data", e);
             redirectAttributes.addFlashAttribute("errorMessage", "重置数据时发生错误：" + e.getMessage());
         }
-
-        return "redirect:/admin"; // 重定向回仪表盘
+        return "redirect:/admin";
     }
 
-
-    // --- 客户管理 --- (省略，与之前相同)
+    // --- 客户管理 ---
     @GetMapping("/customers")
     public String listCustomers(Model model, HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
@@ -214,8 +206,7 @@ public class AdminController {
         return "redirect:/admin/customers";
     }
 
-
-    // --- 客房管理 --- (省略，与之前相同)
+    // --- 客房管理 ---
     @GetMapping("/rooms")
     public String listRooms(Model model, HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
@@ -299,7 +290,7 @@ public class AdminController {
         return "redirect:/admin/rooms";
     }
 
-    // --- 服务管理 --- (省略，与之前相同)
+    // --- 服务管理 ---
     @GetMapping("/services")
     public String listServices(Model model, HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
@@ -381,7 +372,7 @@ public class AdminController {
         return "redirect:/admin/services";
     }
 
-    // --- 会员管理 --- (省略，与之前相同)
+    // --- 会员管理 ---
     @GetMapping("/members")
     public String listMembers(Model model, HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
@@ -490,7 +481,7 @@ public class AdminController {
         return "redirect:/admin/members";
     }
 
-    // --- 入住记录管理 --- (省略，与之前相同)
+    // --- 入住记录管理 ---
     @GetMapping("/checkins")
     public String listCheckIns(@RequestParam(required = false, defaultValue = "active") String viewType, Model model, HttpServletRequest request, RedirectAttributes redirectAttributes) {
         HttpSession session = request.getSession(false);
@@ -519,9 +510,25 @@ public class AdminController {
         }
         Optional<CheckIn> checkInOpt = checkInService.getCheckInById(id);
         if (checkInOpt.isPresent()) {
-            model.addAttribute("checkIn", checkInOpt.get());
-            customerService.getCustomerById(checkInOpt.get().getCustomerId()).ifPresent(c -> model.addAttribute("customer", c));
-            roomService.getRoomById(checkInOpt.get().getRoomId()).ifPresent(r -> model.addAttribute("room", r));
+            CheckIn checkIn = checkInOpt.get();
+            model.addAttribute("checkIn", checkIn);
+
+            // 服务申请处理数据
+            List<ServiceRequest> allRequests = serviceRequestService.findByCheckInId(checkIn.getId());
+            model.addAttribute("allRequests", allRequests);
+
+            List<ServiceRequest> completedRequests = allRequests.stream()
+                    .filter(req -> "COMPLETED".equals(req.getStatus()))
+                    .collect(Collectors.toList());
+            model.addAttribute("completedRequests", completedRequests);
+
+            BigDecimal completedRequestsTotal = completedRequests.stream()
+                    .map(ServiceRequest::getSubtotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            model.addAttribute("completedRequestsTotal", completedRequestsTotal);
+
+            customerService.getCustomerById(checkIn.getCustomerId()).ifPresent(c -> model.addAttribute("customer", c));
+            roomService.getRoomById(checkIn.getRoomId()).ifPresent(r -> model.addAttribute("room", r));
             return "admin/details-checkin";
         }
         redirectAttributes.addFlashAttribute("errorMessage", "未找到入住记录ID: " + id);
@@ -544,49 +551,88 @@ public class AdminController {
         return "redirect:/admin/checkins";
     }
 
-    @GetMapping("/checkins/addservice/{checkInId}")
-    public String showAdminAddServiceToCheckInForm(@PathVariable String checkInId, Model model, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "请先登录。");
-            return "redirect:/admin/login";
-        }
-        Optional<CheckIn> checkInOpt = checkInService.getActiveCheckInById(checkInId);
-        if (checkInOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "未找到有效的入住记录，或该入住已结束。");
-            return "redirect:/admin/checkins";
-        }
-        CheckIn checkIn = checkInOpt.get();
-        List<ServiceInfo> allServices = serviceInfoService.getAllServiceInfos();
+    // --- 服务申请处理区 ---
+    @PostMapping("/service-requests/complete")
+    public String completeServiceRequest(@RequestParam String requestId,
+                                         @RequestParam(required = false) String adminNote,
+                                         @RequestParam(required = false) String redirectCheckInId,
+                                         Model model,
+                                         RedirectAttributes redirectAttributes,
+                                         HttpServletRequest request) {
+        serviceRequestService.markCompleted(requestId, adminNote);
+        model.addAttribute("successMessage", "服务申请已标记为完成！");
 
-        model.addAttribute("checkIn", checkIn);
-        model.addAttribute("allServices", allServices);
-        return "admin/form-addservice-to-checkin";
+        // 仍然留在入住详情页，重新查一遍该入住信息及相关数据
+        if (redirectCheckInId != null && !redirectCheckInId.isEmpty()) {
+            Optional<CheckIn> checkInOpt = checkInService.getCheckInById(redirectCheckInId);
+            if (checkInOpt.isPresent()) {
+                CheckIn checkIn = checkInOpt.get();
+                model.addAttribute("checkIn", checkIn);
+
+                List<ServiceRequest> allRequests = serviceRequestService.findByCheckInId(checkIn.getId());
+                model.addAttribute("allRequests", allRequests);
+
+                List<ServiceRequest> completedRequests = allRequests.stream()
+                        .filter(req -> "COMPLETED".equals(req.getStatus()))
+                        .collect(Collectors.toList());
+                model.addAttribute("completedRequests", completedRequests);
+
+                BigDecimal completedRequestsTotal = completedRequests.stream()
+                        .map(ServiceRequest::getSubtotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                model.addAttribute("completedRequestsTotal", completedRequestsTotal);
+
+                customerService.getCustomerById(checkIn.getCustomerId()).ifPresent(c -> model.addAttribute("customer", c));
+                roomService.getRoomById(checkIn.getRoomId()).ifPresent(r -> model.addAttribute("room", r));
+                return "admin/details-checkin";
+            }
+            model.addAttribute("errorMessage", "未找到入住记录ID: " + redirectCheckInId);
+            return "admin/view-checkins";
+        }
+        // 如果没有 redirectCheckInId，回到入住列表页
+        redirectAttributes.addFlashAttribute("successMessage", "服务申请已标记为完成！");
+        return "redirect:/admin/checkins";
     }
 
-    @PostMapping("/checkins/addservice/{checkInId}")
-    public String adminAddServiceToCheckIn(@PathVariable String checkInId,
-                                           @RequestParam String serviceInfoId,
-                                           @RequestParam int quantity,
-                                           RedirectAttributes redirectAttributes, HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "会话已过期，请重新登录。");
-            return "redirect:/admin/login";
-        }
-        try {
-            if (quantity <= 0) {
-                redirectAttributes.addFlashAttribute("errorMessage", "服务数量必须大于0。");
-                return "redirect:/admin/checkins/addservice/" + checkInId;
-            }
-            com.hotel.model.ServiceInfo serviceInfoModel = serviceInfoService.getServiceInfoById(serviceInfoId)
-                    .orElseThrow(() -> new IllegalArgumentException("无效的服务ID: " + serviceInfoId));
+    @PostMapping("/service-requests/reject")
+    public String rejectServiceRequest(@RequestParam String requestId,
+                                       @RequestParam(required = false) String adminNote,
+                                       @RequestParam(required = false) String redirectCheckInId,
+                                       Model model,
+                                       RedirectAttributes redirectAttributes,
+                                       HttpServletRequest request) {
+        serviceRequestService.markRejected(requestId, adminNote);
+        model.addAttribute("successMessage", "服务申请已拒绝！");
 
-            checkInService.addServiceToCheckIn(checkInId, serviceInfoModel, quantity);
-            redirectAttributes.addFlashAttribute("successMessage", "服务添加成功!");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "添加服务失败: " + e.getMessage());
+        // 仍然留在入住详情页，重新查一遍该入住信息及相关数据
+        if (redirectCheckInId != null && !redirectCheckInId.isEmpty()) {
+            Optional<CheckIn> checkInOpt = checkInService.getCheckInById(redirectCheckInId);
+            if (checkInOpt.isPresent()) {
+                CheckIn checkIn = checkInOpt.get();
+                model.addAttribute("checkIn", checkIn);
+
+                List<ServiceRequest> allRequests = serviceRequestService.findByCheckInId(checkIn.getId());
+                model.addAttribute("allRequests", allRequests);
+
+                List<ServiceRequest> completedRequests = allRequests.stream()
+                        .filter(req -> "COMPLETED".equals(req.getStatus()))
+                        .collect(Collectors.toList());
+                model.addAttribute("completedRequests", completedRequests);
+
+                BigDecimal completedRequestsTotal = completedRequests.stream()
+                        .map(ServiceRequest::getSubtotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                model.addAttribute("completedRequestsTotal", completedRequestsTotal);
+
+                customerService.getCustomerById(checkIn.getCustomerId()).ifPresent(c -> model.addAttribute("customer", c));
+                roomService.getRoomById(checkIn.getRoomId()).ifPresent(r -> model.addAttribute("room", r));
+                return "admin/details-checkin";
+            }
+            model.addAttribute("errorMessage", "未找到入住记录ID: " + redirectCheckInId);
+            return "admin/view-checkins";
         }
-        return "redirect:/admin/checkins/details/" + checkInId;
+        // 如果没有 redirectCheckInId，回到入住列表页
+        redirectAttributes.addFlashAttribute("successMessage", "服务申请已拒绝！");
+        return "redirect:/admin/checkins";
     }
 }

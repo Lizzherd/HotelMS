@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -72,6 +73,8 @@ public class UserServiceController {
         req.setServiceName(info.getServiceName());
         req.setRoomNumber(checkIn.getRoomNumber());
         req.setQuantity(quantity);
+        req.setUnitPrice(BigDecimal.valueOf(info.getServicePrice())); // 关键：赋值单价
+
         serviceRequestService.applyService(req);
 
         redirectAttributes.addAttribute("roomNumber", checkIn.getRoomNumber());

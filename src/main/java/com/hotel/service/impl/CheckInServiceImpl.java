@@ -5,6 +5,7 @@ import com.hotel.repository.CheckInRepository;
 import com.hotel.service.CheckInService;
 import com.hotel.service.RoomService;
 import com.hotel.service.ServiceInfoService;
+import com.hotel.service.ServiceRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,13 +20,15 @@ public class CheckInServiceImpl implements CheckInService {
 
     private final CheckInRepository checkInRepository;
     private final RoomService roomService;
-    private final ServiceInfoService serviceInfoService; // 确保注入
+    private final ServiceInfoService serviceInfoService;
+    private final ServiceRequestService serviceRequestService;// 确保注入
 
     @Autowired
-    public CheckInServiceImpl(CheckInRepository checkInRepository, RoomService roomService, ServiceInfoService serviceInfoService) {
+    public CheckInServiceImpl(CheckInRepository checkInRepository, RoomService roomService, ServiceInfoService serviceInfoService, ServiceRequestService serviceRequestService) {
         this.checkInRepository = checkInRepository;
         this.roomService = roomService;
         this.serviceInfoService = serviceInfoService;
+        this.serviceRequestService = serviceRequestService;
     }
 
     @Override
@@ -128,7 +131,17 @@ public class CheckInServiceImpl implements CheckInService {
                 .orElseThrow(() -> new IllegalStateException("退房时找不到房间信息: " + checkIn.getRoomNumber()));
 
         checkIn.setRoomCost(room.getPrice() * actualNights);
-        checkIn.calculateTotalAmount();
+
+        // 这里统计所有已完成的服务费用
+        List<ServiceRequest> completedRequests = serviceRequestService.findByCheckInId(checkInId).stream()
+                .filter(req -> "COMPLETED".equals(req.getStatus()))
+                .toList();
+        double serviceTotal = completedRequests.stream()
+                .mapToDouble(req -> req.getSubtotal().doubleValue())
+                .sum();
+
+        // 合计房费和服务费
+        checkIn.setTotalAmount(checkIn.getRoomCost() + serviceTotal);
 
         CheckIn updatedCheckIn = checkInRepository.save(checkIn);
         roomService.updateRoomOccupancy(checkIn.getRoomId(), false);

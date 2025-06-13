@@ -3,6 +3,7 @@ package com.hotel.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(collection = "service_requests")
@@ -16,6 +17,7 @@ public class ServiceRequest {
     private String serviceInfoId;     // 服务项目ID
     private String serviceName;       // 服务名称
     private int quantity;             // 数量
+    private BigDecimal unitPrice;     // 单价，新增
     private LocalDateTime requestTime;// 申请时间
     private String status;            // APPLIED/COMPLETED/REJECTED
     private String adminNote;         // 管理员备注
@@ -43,6 +45,9 @@ public class ServiceRequest {
     public int getQuantity() { return quantity; }
     public void setQuantity(int quantity) { this.quantity = quantity; }
 
+    public BigDecimal getUnitPrice() { return unitPrice; }
+    public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
+
     public LocalDateTime getRequestTime() { return requestTime; }
     public void setRequestTime(LocalDateTime requestTime) { this.requestTime = requestTime; }
 
@@ -54,4 +59,12 @@ public class ServiceRequest {
 
     public LocalDateTime getCompletedTime() { return completedTime; }
     public void setCompletedTime(LocalDateTime completedTime) { this.completedTime = completedTime; }
+
+    /**
+     * 计算服务申请小计金额
+     */
+    public BigDecimal getSubtotal() {
+        if (unitPrice == null) return BigDecimal.ZERO;
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
 }
