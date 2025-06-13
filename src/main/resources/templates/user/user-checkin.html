@@ -78,7 +78,7 @@
               const idCard = document.getElementById('idCardNumber').value;
               if (idCard) {
                   // 路径保持 /user/api/customer/ 与 Controller 保持一致
-                  fetch(`/user/api/customer/${idCard}`)
+                  fetch(`/user-checkin/api/customer/${idCard}`)
                       .then(response => {
                           if (!response.ok) {
                               if (response.status === 404) return null;
