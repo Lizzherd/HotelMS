@@ -10,8 +10,8 @@
 <div class="container">
   <h1>发生错误</h1>
   <p th:if="${errorMessage}" th:text="${errorMessage}">出现了一个错误。</p>
-  <p th:if="${exception}" th:text="'错误类型: ' + ${exception.class.simpleName}"></p>
-  <p th:if="${message}" th:text="'详细信息: ' + ${message}"></p> <!-- Spring Boot 默认的错误属性 -->
+  <p th:if="${exception}" th:text="'错误类型: ' + ${exception}"></p>
+  <p th:if="${message}" th:text="'详细信息: ' + ${message}"></p>
   <p th:if="${status}" th:text="'状态码: ' + ${status}"></p>
   <p th:if="${url}" th:text="'请求的URL: ' + ${url}"></p>
   <p><a th:href="@{/}">返回首页</a></p>

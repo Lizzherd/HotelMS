@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>服务申请管理</title>
+  <meta charset="UTF-8"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/header :: header}"></div>
+<div class="admin-layout">
+  <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
+  <main class="admin-content">
+    <h2>全部服务申请</h2>
+    <table>
+      <thead>
+      <tr>
+        <th>客户身份证</th>
+        <th>房间号</th>
+        <th>服务项目</th>
+        <th>数量</th>
+        <th>申请时间</th>
+        <th>状态</th>
+        <th>操作</th>
+        <th>管理员备注</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="req : ${allRequests}">
+        <td th:text="${req.customerIdCard}"></td>
+        <td th:text="${req.roomNumber}"></td>
+        <td th:text="${req.serviceName}"></td>
+        <td th:text="${req.quantity}"></td>
+        <td th:text="${#dates.format(req.requestTime, 'yyyy-MM-dd HH:mm')}"></td>
+        <td>
+          <span th:if="${req.status == 'APPLIED'}">申请中</span>
+          <span th:if="${req.status == 'COMPLETED'}" style="color:green;">已完成</span>
+          <span th:if="${req.status == 'REJECTED'}" style="color:red;">已拒绝</span>
+        </td>
+        <td>
+          <form th:action="@{/admin/service-requests/complete}" method="post" th:if="${req.status == 'APPLIED'}">
+            <input type="hidden" name="requestId" th:value="${req.id}"/>
+            <input type="text" name="adminNote" placeholder="备注（选填）"/>
+            <button type="submit">标记为完成</button>
+          </form>
+          <form th:action="@{/admin/service-requests/reject}" method="post" th:if="${req.status == 'APPLIED'}">
+            <input type="hidden" name="requestId" th:value="${req.id}"/>
+            <input type="text" name="adminNote" placeholder="备注（选填）"/>
+            <button type="submit">拒绝</button>
+          </form>
+        </td>
+        <td th:text="${req.adminNote}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

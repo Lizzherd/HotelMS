@@ -13,7 +13,8 @@
   <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
   <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 
-  <form th:action="@{/user/checkin}" th:object="${customer}" method="post">
+  <!-- 注意: 这里的 action 路径改为 /user-checkin，确保和 controller 匹配 -->
+  <form th:action="@{/user-checkin}" th:object="${customer}" method="post">
     <fieldset>
       <legend>客户信息</legend>
       <div>
@@ -51,29 +52,36 @@
       </div>
       <div>
         <label for="expectedCheckOutDate">预计离店日期:</label>
-        <input type="date" id="expectedCheckOutDate" name="expectedCheckOutDate" required="required" th:min="${#dates.format(#dates.createNowPlusDays(1), 'yyyy-MM-dd')}"/>
+        <input type="date" id="expectedCheckOutDate" name="expectedCheckOutDate" required="required"/>
       </div>
     </fieldset>
 
     <button type="submit">提交入住</button>
   </form>
+
+  <div style="margin-top:40px;">
+    <h3>提示</h3>
+    <div class="alert alert-info">
+      入住登记成功后，您可以在 <a th:href="@{/user/user-service}">服务申请页面</a> 申请客房服务，并随时查看您的服务进度。
+    </div>
+  </div>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
 
-<script th:src="@{/js/jquery-3.6.0.min.js}"></script> <!-- 引入jQuery, 如果没有可以下载或用原生JS -->
+<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
 <script>
-  // 简单的JS用于根据身份证号获取客户信息
   document.addEventListener('DOMContentLoaded', function() {
       const fetchButton = document.getElementById('fetchCustomerBtn');
       if(fetchButton) {
           fetchButton.addEventListener('click', function() {
               const idCard = document.getElementById('idCardNumber').value;
               if (idCard) {
+                  // 路径保持 /user/api/customer/ 与 Controller 保持一致
                   fetch(`/user/api/customer/${idCard}`)
                       .then(response => {
                           if (!response.ok) {
-                              if (response.status === 404) return null; //未找到
+                              if (response.status === 404) return null;
                               throw new Error('网络错误');
                           }
                           return response.json();
@@ -96,10 +104,6 @@
                                alert('客户信息已加载。');
                           } else {
                               alert('未找到该身份证号的客户信息，请填写新客户资料。');
-                              // 可以选择清空其他字段
-                              // document.getElementById('name').value = '';
-                              // document.getElementById('contactInfo').value = '';
-                              // document.getElementById('gender').selectedIndex = 0;
                           }
                       })
                       .catch(error => {
@@ -111,21 +115,18 @@
               }
           });
       }
-       // 设置预计离店日期默认为明天
+      // 设置预计离店日期min值为明天
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
       const yyyy = tomorrow.getFullYear();
-      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
       const dd = String(tomorrow.getDate()).padStart(2, '0');
       const minDate = `${yyyy}-${mm}-${dd}`;
 
       const expectedCheckOutDateInput = document.getElementById('expectedCheckOutDate');
       if(expectedCheckOutDateInput){
           expectedCheckOutDateInput.setAttribute('min', minDate);
-          if (!expectedCheckOutDateInput.value) { // 如果没有默认值，设置为明天
-              // expectedCheckOutDateInput.value = minDate; // 可选：默认填充
-          }
       }
   });
 </script>
