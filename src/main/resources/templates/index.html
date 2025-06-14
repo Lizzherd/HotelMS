@@ -4,21 +4,127 @@
     <meta charset="UTF-8">
     <title>邦多利大酒店管理系统</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .container h1 { /* 更精确的选择器 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container h2 { /* 更精确的选择器 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
+
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container">
     <h1>什么酒店越住越年轻，就是Hotel Bangdream！</h1>
-    <p>请选择您的操作：</p>
+
+    <!-- 纯CSS轮播图 -->
+    <div class="slideshow">
+        <div class="slides">
+            <div class="slide">
+                <img src="/images/banner1.jpg" alt="宣传图1">
+            </div>
+            <div class="slide">
+                <img src="/images/banner2.jpg" alt="宣传图2">
+            </div>
+            <div class="slide">
+                <img src="/images/banner3.jpg" alt="宣传图3">
+            </div>
+        </div>
+
+        <button class="slide-btn prev" onclick="prevSlide()">&#10094;</button>
+        <button class="slide-btn next" onclick="nextSlide()">&#10095;</button>
+
+        <div class="slide-indicators">
+            <div class="indicator active" onclick="goToSlide(0)"></div>
+            <div class="indicator" onclick="goToSlide(1)"></div>
+            <div class="indicator" onclick="goToSlide(2)"></div>
+        </div>
+    </div>
+
+    <h2>请选择您的操作：</h2>
     <ul>
-        <li><a th:href="@{/user}">用户界面</a></li>
-        <li><a th:href="@{/admin}">后台管理</a></li>
+        <div class="action-buttons">
+            <a th:href="@{/user}" class="action-btn user-btn">
+                <i class="icon-user"></i>
+                <span>用户界面</span>
+            </a>
+            <a th:href="@{/admin}" class="action-btn admin-btn">
+                <i class="icon-settings"></i>
+                <span>后台管理</span>
+            </a>
+        </div>
     </ul>
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    // 全局变量
+    let currentSlide = 0;
+    const totalSlides = 3;
+    let slidesEl, indicators;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // 获取DOM元素
+        slidesEl = document.querySelector('.slides');
+        indicators = document.querySelectorAll('.indicator');
+
+        // 初始化
+        updateSlidePosition();
+        updateIndicators();
+
+        // 自动轮播
+        setInterval(() => {
+            nextSlide();
+        }, 3000);
+    });
+
+    function goToSlide(index) {
+        currentSlide = index;
+        updateSlidePosition();
+        updateIndicators();
+    }
+
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateSlidePosition();
+        updateIndicators();
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlidePosition();
+        updateIndicators();
+    }
+
+    function updateSlidePosition() {
+        slidesEl.style.transform = `translateX(-${currentSlide * 33.33}%)`;
+    }
+
+    function updateIndicators() {
+        indicators.forEach((indicator, index) => {
+            if (index === currentSlide) {
+                indicator.classList.add('active');
+            } else {
+                indicator.classList.remove('active');
+            }
+        });
+    }
+
+    // 绑定全局函数
+    window.goToSlide = goToSlide;
+    window.prevSlide = prevSlide;
+    window.nextSlide = nextSlide;
+</script>
+
 </body>
 </html>
