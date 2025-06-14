@@ -109,6 +109,7 @@ public class AdminController {
             customerService.deleteAllCustomers();
             roomService.deleteAllRooms();
             serviceInfoService.deleteAllServiceInfos();
+            serviceRequestService.deleteAllServiceInfos();
             redirectAttributes.addFlashAttribute("successMessage", "所有系统记录已成功重置！");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "重置数据时发生错误：" + e.getMessage());
