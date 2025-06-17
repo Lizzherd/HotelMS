@@ -9,80 +9,84 @@
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="container">
   <h2>客房服务申请</h2>
+
   <!-- 登录房间号表单 -->
   <form th:action="@{/user-service/login}" method="get" style="margin-bottom: 20px;">
     <label for="roomNumber">请输入房间号：</label>
     <input type="text" id="roomNumber" name="roomNumber" th:value="${roomNumber}" required>
     <button type="submit">登录</button>
   </form>
-  <!-- 显示会员信息 -->
-  <!-- 有会员信息时显示会员等级和折扣 -->
-  <div th:if="${memberInfo != null}" style="margin-bottom: 20px; color: green;">
-    <p>会员等级：<strong th:text="${memberInfo.memberLevel}">VIP</strong></p>
-    <p>
-      会员折扣：
-      <strong th:switch="${memberInfo.memberLevel.name()}">
-        <span th:case="'BRONZE'">95 折</span>
-        <span th:case="'SILVER'">9 折</span>
-        <span th:case="'GOLD'">85 折</span>
-        <span th:case="'PLATINUM'">8 折</span>
-        <span th:case="*">无折扣</span>
-      </strong>
-    </p>
-  </div>
 
-  <!-- 没有会员信息时显示“非会员”和“无折扣” -->
-  <div th:unless="${memberInfo != null}" style="margin-bottom: 20px; color: gray;">
-    <p>会员等级：<strong>非会员</strong></p>
-    <p>会员折扣：<strong>无折扣</strong></p>
-  </div>
+  <!-- 仅当 roomNumber 参数存在（已提交登录）时才检查会员信息 -->
+  <div th:if="${param.roomNumber != null}">
+    <!-- 如果已找到入住记录，显示会员信息和服务申请 -->
+    <div th:if="${checkIn != null}">
+      <!-- 会员信息 -->
+      <div th:if="${memberInfo != null}" style="margin-bottom: 20px; color: green;">
+        <p>会员等级：<strong th:text="${memberInfo.memberLevel}">VIP</strong></p>
+        <p>
+          会员折扣：
+          <strong th:switch="${memberInfo.memberLevel.name()}">
+            <span th:case="'BRONZE'">95 折</span>
+            <span th:case="'SILVER'">9 折</span>
+            <span th:case="'GOLD'">85 折</span>
+            <span th:case="'PLATINUM'">8 折</span>
+            <span th:case="*">无折扣</span>
+          </strong>
+        </p>
+      </div>
 
+      <!-- 非会员信息 -->
+      <div th:unless="${memberInfo != null}" style="margin-bottom: 20px; color: gray;">
+        <p>会员等级：<strong>非会员</strong></p>
+        <p>会员折扣：<strong>无折扣</strong></p>
+      </div>
 
-  <!-- 如果已找到入住记录 -->
-  <div th:if="${checkIn != null}">
-    <form th:action="@{/user-service/apply}" method="post" style="margin-bottom: 30px;">
-      <input type="hidden" name="checkInId" th:value="${checkIn.id}"/>
-      <label for="serviceInfoId">服务项目：</label>
-      <select id="serviceInfoId" name="serviceInfoId" required>
-        <option value="">请选择服务</option>
-        <option
-                th:each="service, iterStat : ${allServices}"
-                th:value="${service.id}"
-                th:text="${service.serviceName}
-               + ' (原价：￥' + ${service.servicePrice}
-               + ' 折后价：￥' + ${final_prices.get(iterStat.index)}
-               + ')'">
-        </option>
+      <!-- 服务申请表单 -->
+      <form th:action="@{/user-service/apply}" method="post" style="margin-bottom: 30px;">
+        <input type="hidden" name="checkInId" th:value="${checkIn.id}"/>
+        <label for="serviceInfoId">服务项目：</label>
+        <select id="serviceInfoId" name="serviceInfoId" required>
+          <option value="">请选择服务</option>
+          <option
+                  th:each="service, iterStat : ${allServices}"
+                  th:value="${service.id}"
+                  th:text="${service.serviceName}
+                 + ' (原价：￥' + ${service.servicePrice}
+                 + ' 折后价：￥' + ${final_prices.get(iterStat.index)}
+                 + ')'">
+          </option>
+        </select>
+        <label for="quantity">数量：</label>
+        <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+        <button type="submit">申请服务</button>
+      </form>
 
+      <!-- 服务申请记录 -->
+      <h3>本房间服务申请记录</h3>
+      <table>
+        <thead>
+        <tr><th>项目</th><th>数量</th><th>状态</th><th>时间</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="req : ${myRequests}">
+          <td th:text="${req.serviceName}"></td>
+          <td th:text="${req.quantity}"></td>
+          <td>
+            <span th:if="${req.status == 'APPLIED'}">申请中</span>
+            <span th:if="${req.status == 'COMPLETED'}" style="color:green;">已完成</span>
+            <span th:if="${req.status == 'REJECTED'}" style="color:red;">已拒绝</span>
+          </td>
+          <td th:text="${#temporals.format(req.requestTime, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
-      </select>
-      <label for="quantity">数量：</label>
-      <input type="number" id="quantity" name="quantity" min="1" value="1" required>
-      <button type="submit">申请服务</button>
-    </form>
-
-    <h3>本房间服务申请记录</h3>
-    <table>
-      <thead>
-      <tr><th>项目</th><th>数量</th><th>状态</th><th>时间</th></tr>
-      </thead>
-      <tbody>
-      <tr th:each="req : ${myRequests}">
-        <td th:text="${req.serviceName}"></td>
-        <td th:text="${req.quantity}"></td>
-        <td>
-          <span th:if="${req.status == 'APPLIED'}">申请中</span>
-          <span th:if="${req.status == 'COMPLETED'}" style="color:green;">已完成</span>
-          <span th:if="${req.status == 'REJECTED'}" style="color:red;">已拒绝</span>
-        </td>
-        <td th:text="${#temporals.format(req.requestTime, 'yyyy-MM-dd HH:mm')}"></td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-  <!-- 如果没有入住记录 -->
-  <div th:if="${checkIn == null}">
-    <div class="alert alert-warning">未找到该房间的有效入住记录，请确认房间号或联系前台。</div>
+    <!-- 如果没有入住记录 -->
+    <div th:if="${checkIn == null}">
+      <div class="alert alert-warning">未找到该房间的有效入住记录，请确认房间号或联系前台。</div>
+    </div>
   </div>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>

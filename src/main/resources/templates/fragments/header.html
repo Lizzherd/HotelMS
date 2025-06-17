@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<body>
+<!-- src/main/resources/templates/fragments/header.html -->
 <header th:fragment="header">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
   <nav class="navbar">
-    <a th:href="@{/}" class="navbar-brand">邦多利大酒店管理系统</a>
-    <div>
-      <a th:href="@{/user}" class="nav-link">用户界面</a>
+    <a th:href="@{/}" class="navbar-brand">邦多利大酒店</a>
+    <div class="navbar-links">
+      <a th:href="@{/user}" class="nav-link">用户入口</a>
       <a th:href="@{/admin}" class="nav-link">管理后台</a>
     </div>
   </nav>
 </header>
-</body>
-</html>
+

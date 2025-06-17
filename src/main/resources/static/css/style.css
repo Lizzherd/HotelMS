@@ -1,8 +1,9 @@
+/* 通用设置 */
 body {
-    font-family: sans-serif;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #f9f9f9;
     color: #333;
     display: flex;
     flex-direction: column;
@@ -10,93 +11,134 @@ body {
 }
 
 .container {
-    width: 80%;
+    width: 85%;
     margin: auto;
-    overflow: hidden;
-    padding: 20px;
+    padding: 25px;
     background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     flex-grow: 1;
 }
 
+/* Header */
 header {
-    background: #333;
+    background: #1e3d59;
     color: #fff;
-    padding: 1rem 0;
-    border-bottom: #0779e4 3px solid;
+    padding: 1.2rem 0;
+    border-bottom: 4px solid #f4b400;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* 新增/优化导航栏样式 */
 .navbar {
-    width: 80%;
-    margin: auto;
+    width: 100%;
+    background: linear-gradient(to right, #003366, #0059b3);
+    padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .navbar-brand {
     color: #fff;
+    font-size: 1.8rem;
+    font-weight: bold;
     text-decoration: none;
-    font-size: 1.5rem;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 25px;
 }
 
 .nav-link {
-    color: #fff;
+    color: #f0f0f0;
     text-decoration: none;
-    margin-left: 15px;
-}
-.nav-link:hover {
-    color: #0779e4;
+    font-size: 1rem;
+    transition: color 0.3s, transform 0.2s;
+    position: relative;
 }
 
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    display: block;
+    margin-top: 5px;
+    right: 0;
+    background: #77c0f6;
+    transition: width 0.3s ease;
+    -webkit-transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #77c0f6;
+    transform: translateY(-2px);
+}
+
+.nav-link:hover::after {
+    width: 100%;
+    left: 0;
+    background: #77c0f6;
+}
+
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar-links {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .nav-link {
+        margin: 5px 0;
+    }
+}
+
+
+/* Footer */
 .footer {
-    background: #333;
+    background: #1e3d59;
     color: #fff;
     text-align: center;
     padding: 1rem 0;
-    margin-top: auto; /* Pushes footer to the bottom */
+    margin-top: auto;
 }
 
-.alert {
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-}
-.alert-success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-.alert-danger {
-    color: #721c24;
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-}
-.error-message {
-    color: red;
-    font-size: 0.9em;
-}
+/* 通用提示框 */
+.alert { padding: 15px; margin-bottom: 20px; border-radius: 6px; }
+.alert-success { background-color: #e6f4ea; color: #2e7d32; }
+.alert-danger { background-color: #fdecea; color: #c62828; }
+.error-message { color: #c62828; font-size: 0.9em; }
 
-
-/* Admin Layout */
+/* Admin 布局 */
 .admin-layout {
     display: flex;
     width: 90%;
-    margin: 20px auto;
-    background-color: #fff;
-    min-height: 70vh; /* Ensure content area has some height */
+    margin: 30px auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    min-height: 70vh;
 }
 
 .admin-sidebar {
-    width: 200px;
-    background-color: #f0f0f0;
-    padding: 20px;
+    width: 220px;
+    background-color: #f2f2f2;
+    padding: 25px;
     border-right: 1px solid #ddd;
 }
 .admin-sidebar h2 {
-    margin-top: 0;
-    font-size: 1.2em;
-    color: #333;
+    font-size: 1.1em;
+    margin-bottom: 15px;
 }
 .admin-sidebar ul {
     list-style: none;
@@ -104,288 +146,238 @@ header {
 }
 .admin-sidebar ul li a {
     display: block;
-    padding: 8px 0;
-    color: #007bff;
+    padding: 10px 5px;
+    color: #1e3d59;
     text-decoration: none;
+    transition: all 0.2s;
 }
 .admin-sidebar ul li a:hover {
-    text-decoration: underline;
+    background-color: #e0e0e0;
+    border-radius: 4px;
 }
-
 
 .admin-content {
     flex-grow: 1;
-    padding: 20px;
+    padding: 30px;
 }
 
-/* Tables */
+/* 表格 */
 .table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 .table th, .table td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 12px;
     text-align: left;
 }
 .table th {
-    background-color: #f2f2f2;
+    background-color: #f4f4f4;
 }
 
-/* Forms */
-form div {
-    margin-bottom: 15px;
-}
-form label {
-    display: block;
-    margin-bottom: 5px;
-}
+/* 表单 */
+form div { margin-bottom: 18px; }
+form label { display: block; margin-bottom: 6px; font-weight: bold; }
 form input[type="text"],
-form input[type="number"],
-form input[type="password"],
 form input[type="email"],
+form input[type="password"],
+form input[type="number"],
 form input[type="date"],
 form select,
 form textarea {
-    width: calc(100% - 22px); /* Adjust for padding and border */
+    width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-form input[type="checkbox"] {
-    margin-right: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
 }
 
-/* Buttons */
+/* 按钮 */
 .button, button {
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    text-decoration: none;
+    background-color: #1e3d59;
+    color: #fff;
+    padding: 10px 18px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    margin-right: 5px;
-    margin-top: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
 }
 .button:hover, button:hover {
-    background-color: #0056b3;
+    background-color: #f4b400;
+    color: #333;
 }
 .button-edit { background-color: #ffc107; color: #212529; }
-.button-edit:hover { background-color: #e0a800; }
 .button-delete { background-color: #dc3545; }
-.button-delete:hover { background-color: #c82333; }
 .button-cancel { background-color: #6c757d; }
+.button-primary { background-color: #28a745; }
+.button-edit:hover { background-color: #e0a800; }
+.button-delete:hover { background-color: #c82333; }
 .button-cancel:hover { background-color: #5a6268; }
-.button-primary { background-color: #28a745; } /* Green for primary actions like 'Complete' */
 .button-primary:hover { background-color: #218838; }
-
 
 .disabled-link {
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.5;
     background-color: #ccc !important;
 }
 
-/* Status indicators */
-.status-occupied, .status-active { color: red; font-weight: bold; }
-.status-available, .status-inactive { color: green; }
+/* 状态样式 */
+.status-occupied, .status-active {
+    color: #d32f2f;
+    font-weight: bold;
+}
+.status-available, .status-inactive {
+    color: #388e3c;
+}
 
-/* Dashboard stats */
+/* 登录表单 */
+.login-container {
+    width: 320px;
+    margin: 100px auto;
+    padding: 25px;
+    background-color: #ffffffcc;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.15);
+}
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1e3d59;
+}
+
+/* 卡片统计 */
 .dashboard-stats {
     display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
+    gap: 25px;
+    margin-bottom: 25px;
 }
 .stat-card {
-    background-color: #e9ecef;
+    background-color: #fff3cd;
+    color: #856404;
     padding: 20px;
-    border-radius: 5px;
+    border-radius: 10px;
     text-align: center;
-    min-width: 150px;
+    flex: 1;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-.stat-card h3 { margin-top: 0; font-size: 1em; }
-.stat-card p { font-size: 1.8em; font-weight: bold; margin-bottom: 0;}
-.button-danger { background-color: #dc3545; border-color: #dc3545; color: white; }
-.button-danger:hover { background-color: #c82333; border-color: #bd2130; }
-
-.login-container {
-            width: 300px;
-            margin: 100px auto;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-.login-container h2 {
-        text-align: center;
-        margin-bottom: 20px;
-        }
-
-fieldset {
-    border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-radius: 4px;
+.stat-card h3 {
+    margin: 0;
+    font-size: 1em;
 }
-legend {
+.stat-card p {
+    font-size: 2em;
     font-weight: bold;
-    padding: 0 10px;
 }
 
-/* 轮播图容器 */
+/* 轮播图 */
 .slideshow {
-    width: 800px;
-    height: 400px;
-    margin: 20px auto;
+    width: 100%;
+    max-width: 1000px;
+    height: 450px;
+    margin: 30px auto;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    border-radius: 8px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
-
-/* 轮播图片容器 */
 .slides {
     display: flex;
-    width: 300%; /* 3张图片 */
+    width: 300%;
     height: 100%;
     transition: transform 0.5s ease;
 }
-
-/* 单个轮播项 */
 .slide {
     width: 33.33%;
     height: 100%;
     flex-shrink: 0;
 }
-
 .slide img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 12px;
 }
-
-/* 轮播按钮 */
 .slide-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(30,61,89,0.6);
     color: white;
     border: none;
-    padding: 15px;
+    padding: 10px;
     cursor: pointer;
-    font-size: 18px;
-    z-index: 10;
+    font-size: 20px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 10;
 }
-
 .slide-btn:hover {
-    background-color: rgba(0,0,0,0.8);
+    background-color: rgba(244,180,0,0.8);
 }
+.prev { left: 20px; }
+.next { right: 20px; }
 
-.prev {
-    left: 15px;
-}
-
-.next {
-    right: 15px;
-}
-
-/* 轮播指示器 */
 .slide-indicators {
     position: absolute;
-    bottom: 20px;
+    bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     gap: 10px;
-    z-index: 10;
 }
-
 .indicator {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.4);
     cursor: pointer;
-    transition: background-color 0.3s;
 }
-
 .indicator.active {
-    background-color: rgba(255,255,255,0.9);
+    background-color: rgba(255,255,255,1);
 }
 
-/* 操作按钮容器 */
+/* 操作按钮（主界面图标按钮） */
 .action-buttons {
     display: flex;
     justify-content: center;
-    gap: 30px;
-    margin: 40px 0;
+    gap: 40px;
+    margin: 50px 0;
 }
-
-/* 基础按钮样式 */
 .action-btn {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
     border-radius: 20px;
     text-decoration: none;
     color: white;
     font-size: 18px;
-    font-weight: 500;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background: linear-gradient(135deg, #1e3d59, #f4b400);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
-
-/* 用户按钮样式 */
-.user-btn {
-    width: 150px;
-    height: 100px;
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-/* 管理按钮样式 */
-.admin-btn {
-    width: 150px;
-    height: 100px;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-/* 悬停效果 */
 .action-btn:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
-
-/* 图标样式 */
 .action-btn i {
-    font-size: 40px;
-    margin-bottom: 15px;
+    font-size: 36px;
+    margin-bottom: 10px;
 }
 
-/* 响应式设计 */
-@media (max-width: 600px) {
+/* 响应式 */
+@media (max-width: 768px) {
     .action-buttons {
         flex-direction: column;
         align-items: center;
         gap: 20px;
     }
-
     .action-btn {
         width: 80%;
         height: 120px;
     }
 }
-

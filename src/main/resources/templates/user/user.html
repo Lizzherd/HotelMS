@@ -4,21 +4,67 @@
   <meta charset="UTF-8">
   <title>用户界面 - 邦多利大酒店</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
+  <style>
+    /* 添加自定义样式 */
+    .container {
+      min-height: 60vh; /* 设置最小高度 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .action-buttons {
+      margin: 40px 0; /* 增加按钮上下边距 */
+    }
+    .decorative-line {
+      width: 80%;
+      max-width: 400px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #0779e4, transparent);
+      margin: 30px auto;
+    }
+    .hotel-features {
+      margin-top: 30px;
+      color: #777;
+      font-style: italic;
+    }
+  </style>
 </head>
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 
-<div class="container">
-  <h2>用户界面</h2>
-  <p>请选择您的操作：</p>
-  <ul>
-    <li><a th:href="@{/user-checkin}">入住申请</a></li>
-    <li><a th:href="@{/user-service}">申请客房服务</a></li>
-  </ul>
+<div class="container" style="text-align: center;">
+  <h2 style="margin-top: 20px; font-size: 2em; color: #0779e4;">欢迎使用邦多利大酒店自助服务</h2>
+  <p style="margin-bottom: 30px; color: #666;">请选择您的操作：</p>
+
+  <!-- 操作按钮区域 -->
+  <div class="action-buttons">
+    <a th:href="@{/user-checkin}" class="action-btn user-btn">
+      <i class="fas fa-bed"></i>
+      入住申请
+    </a>
+    <a th:href="@{/user-service}" class="action-btn admin-btn">
+      <i class="fas fa-bell-concierge"></i>
+      申请客房服务
+    </a>
+  </div>
+
+  <!-- 装饰性分隔线 -->
+  <div class="decorative-line"></div>
+
+  <!-- 酒店特色提示 -->
+  <div class="hotel-features">
+    <p>邦多利大酒店为您提供24小时优质服务</p>
+    <p>如有任何问题，请随时联系前台</p>
+  </div>
+
+  <!-- 提示信息 -->
   <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
   <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- 字体图标库（Font Awesome） -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
