@@ -14,6 +14,7 @@ public class ServiceInfo {
 
     private double servicePrice; // 服务单价
 
+
     public ServiceInfo() {
     }
 

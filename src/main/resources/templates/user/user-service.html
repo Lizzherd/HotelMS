@@ -15,6 +15,28 @@
     <input type="text" id="roomNumber" name="roomNumber" th:value="${roomNumber}" required>
     <button type="submit">登录</button>
   </form>
+  <!-- 显示会员信息 -->
+  <!-- 有会员信息时显示会员等级和折扣 -->
+  <div th:if="${memberInfo != null}" style="margin-bottom: 20px; color: green;">
+    <p>会员等级：<strong th:text="${memberInfo.memberLevel}">VIP</strong></p>
+    <p>
+      会员折扣：
+      <strong th:switch="${memberInfo.memberLevel.name()}">
+        <span th:case="'BRONZE'">95 折</span>
+        <span th:case="'SILVER'">9 折</span>
+        <span th:case="'GOLD'">85 折</span>
+        <span th:case="'PLATINUM'">8 折</span>
+        <span th:case="*">无折扣</span>
+      </strong>
+    </p>
+  </div>
+
+  <!-- 没有会员信息时显示“非会员”和“无折扣” -->
+  <div th:unless="${memberInfo != null}" style="margin-bottom: 20px; color: gray;">
+    <p>会员等级：<strong>非会员</strong></p>
+    <p>会员折扣：<strong>无折扣</strong></p>
+  </div>
+
 
   <!-- 如果已找到入住记录 -->
   <div th:if="${checkIn != null}">
@@ -23,9 +45,16 @@
       <label for="serviceInfoId">服务项目：</label>
       <select id="serviceInfoId" name="serviceInfoId" required>
         <option value="">请选择服务</option>
-        <option th:each="service : ${allServices}"
+        <option
+                th:each="service, iterStat : ${allServices}"
                 th:value="${service.id}"
-                th:text="${service.serviceName + ' (￥' + service.servicePrice + ')'}"></option>
+                th:text="${service.serviceName}
+               + ' (原价：￥' + ${service.servicePrice}
+               + ' 折后价：￥' + ${final_prices.get(iterStat.index)}
+               + ')'">
+        </option>
+
+
       </select>
       <label for="quantity">数量：</label>
       <input type="number" id="quantity" name="quantity" min="1" value="1" required>
