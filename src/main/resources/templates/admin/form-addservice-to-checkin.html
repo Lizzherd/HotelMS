@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>为入住添加服务</title>
+    <title>添加服务</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -10,52 +10,125 @@
 <div class="admin-layout">
     <div th:replace="~{fragments/admin-nav :: admin-nav}"></div>
     <main class="admin-content">
-        <h2>为入住添加服务</h2>
-        <p>入住房间: <strong th:text="${checkIn.roomNumber}"></strong> | 客户: <strong th:text="${checkIn.customerName}"></strong></p>
+        <h2>为房间 <span th:text="${checkIn.roomNumber}"></span> 添加服务</h2>
 
-        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <!-- 会员信息展示区 -->
+        <div class="customer-info" style="margin-bottom: 20px;">
+            <p>客户: <strong th:text="${checkIn.customerName}"></strong></p>
+            <p>身份证: <strong th:text="${checkIn.customerIdCardNumber}"></strong></p>
 
-        <h3>当前已选服务:</h3>
-        <div th:if="${checkIn.services == null or checkIn.services.isEmpty()}">
-            <p>暂无已选服务。</p>
+            <!-- 会员信息 -->
+            <div th:if="${memberInfo != null}" style="color: black;">
+                <p>会员等级：
+                    <strong th:text="${memberInfo.memberLevel}"
+                            th:style="${memberInfo.memberLevel.name()} == 'PLATINUM' ? 'color: #4b0082; font-weight: bold;' :
+                    (${memberInfo.memberLevel.name()} == 'GOLD' ? 'color: #ff8c00; font-weight: bold;' :
+                    (${memberInfo.memberLevel.name()} == 'SILVER' ? 'color: #708090; font-weight: bold;' :
+                    (${memberInfo.memberLevel.name()} == 'BRONZE' ? 'color: #a0522d; font-weight: bold;' :
+                    'color: inherit;')))">
+                        VIP
+                    </strong>
+                </p>
+
+
+                    会员折扣:
+                    <strong th:switch="${memberInfo.memberLevel.name()}">
+                        <span th:case="'BRONZE'">95折</span>
+                        <span th:case="'SILVER'">9折</span>
+                        <span th:case="'GOLD'">85折</span>
+                        <span th:case="'PLATINUM'">8折</span>
+                        <span th:case="*">无折扣</span>
+                    </strong>
+                </p>
+            </div>
+
+            <!-- 非会员信息 -->
+            <div th:unless="${memberInfo != null}" style="color: gray;">
+                <p>会员等级: <strong>非会员</strong></p>
+                <p>会员折扣: <strong>无折扣</strong></p>
+            </div>
         </div>
-        <table th:unless="${checkIn.services == null or checkIn.services.isEmpty()}" class="table">
-            <thead>
-            <tr><th>服务名称</th><th>数量</th><th>单价</th><th>小计</th></tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${checkIn.services}">
-                <td th:text="${item.serviceName}"></td><td th:text="${item.quantity}"></td>
-                <td th:text="${'￥' + #numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}"></td>
-                <td th:text="${'￥' + #numbers.formatDecimal(item.subtotal, 1, 'COMMA', 2, 'POINT')}"></td>
-            </tr>
-            </tbody>
-            <tfoot>
-            <tr><td colspan="3" style="text-align:right;">服务总计:</td><td th:text="${'￥' + #numbers.formatDecimal(checkIn.servicesCost, 1, 'COMMA', 2, 'POINT')}"></td></tr>
-            </tfoot>
-        </table>
 
-        <h3>添加新服务:</h3>
-        <form th:action="@{'/admin/checkins/addservice/' + ${checkIn.id}}" method="post">
-            <div>
-                <label for="serviceInfoId">选择服务:</label>
-                <select id="serviceInfoId" name="serviceInfoId" required="required">
-                    <option value="">请选择</option>
-                    <option th:each="service : ${allServices}"
+        <!-- 服务申请表单 -->
+        <form th:action="@{/admin/checkins/apply-service}" method="post" class="service-form">
+            <input type="hidden" name="checkInId" th:value="${checkIn.id}"/>
+
+            <div class="form-group">
+                <label for="serviceInfoId">服务项目:</label>
+                <select id="serviceInfoId" name="serviceInfoId" class="form-control" required>
+                    <option value="">请选择服务</option>
+                    <option th:each="service, iterStat : ${allServices}"
                             th:value="${service.id}"
-                            th:text="${service.serviceName + ' (￥' + service.servicePrice + ')'}"></option>
+                            th:text="${service.serviceName}
+                                   + ' (原价: ￥' + ${service.servicePrice}
+                                   + ', 折后价: ￥' + ${finalPrices.get(iterStat.index)}
+                                   + ')'">
+                    </option>
                 </select>
             </div>
-            <div>
+
+            <div class="form-group">
                 <label for="quantity">数量:</label>
-                <input type="number" id="quantity" name="quantity" min="1" value="1" required="required" />
+                <input type="number" id="quantity" name="quantity" class="form-control" min="1" value="1" required>
             </div>
-            <button type="submit">添加服务</button>
-            <a th:href="@{'/admin/checkins/details/' + ${checkIn.id}}" class="button-cancel">返回详情</a>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">添加服务</button>
+                <a th:href="@{'/admin/checkins'}" class="btn btn-secondary">返回</a>
+            </div>
         </form>
     </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<style>
+    .customer-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .customer-info p {
+        margin: 5px 0;
+    }
+    .service-form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    .btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+</style>
 </body>
 </html>

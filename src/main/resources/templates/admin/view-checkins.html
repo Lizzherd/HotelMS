@@ -53,7 +53,7 @@
           <form th:if="${checkIn.isActive}" th:action="@{'/admin/checkins/checkout/' + ${checkIn.id}}" method="post" style="display:inline;">
             <button type="submit" class="button-delete" onclick="return confirm('确定为该客户办理退房吗？');">办理退房</button>
           </form>
-          <a th:if="${checkIn.isActive}" th:href="@{'/admin/checkins/addservice/' + ${checkIn.id}}" class="button-edit">添加服务</a>
+          <a th:if="${checkIn.isActive}" th:href="@{'/admin/checkins/form-addservice-to-checkin/' + ${checkIn.id}}" class="button-edit">添加服务</a>
         </td>
       </tr>
       </tbody>

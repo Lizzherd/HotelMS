@@ -8,6 +8,14 @@
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="container">
+
+  <div style="margin-bottom: 20px;">
+    <a th:href="@{/user}" class="return-btn">
+      <i class="fas fa-arrow-left"></i>
+      返回主界面
+    </a>
+  </div>
+
   <h2>客房服务申请</h2>
 
   <!-- 登录房间号表单 -->
@@ -22,9 +30,19 @@
     <!-- 如果已找到入住记录，显示会员信息和服务申请 -->
     <div th:if="${checkIn != null}">
       <!-- 会员信息 -->
-      <div th:if="${memberInfo != null}" style="margin-bottom: 20px; color: green;">
-        <p>会员等级：<strong th:text="${memberInfo.memberLevel}">VIP</strong></p>
-        <p>
+      <div th:if="${memberInfo != null}" style="margin-bottom: 20px; color: black;">
+        <p>会员等级：
+          <strong th:text="${memberInfo.memberLevel}"
+                  th:style="${memberInfo.memberLevel.name()} == 'PLATINUM' ? 'color: #4b0082; font-weight: bold;' :
+                    (${memberInfo.memberLevel.name()} == 'GOLD' ? 'color: #ff8c00; font-weight: bold;' :
+                    (${memberInfo.memberLevel.name()} == 'SILVER' ? 'color: #708090; font-weight: bold;' :
+                    (${memberInfo.memberLevel.name()} == 'BRONZE' ? 'color: #a0522d; font-weight: bold;' :
+                    'color: inherit;')))">
+            VIP
+          </strong>
+        </p>
+
+
           会员折扣：
           <strong th:switch="${memberInfo.memberLevel.name()}">
             <span th:case="'BRONZE'">95 折</span>

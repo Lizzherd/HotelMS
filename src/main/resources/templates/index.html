@@ -22,9 +22,7 @@
 <div th:replace="~{fragments/header :: header}"></div>
 
 <div class="container">
-    <h1>什么酒店越住越年轻，就是Hotel Bangdream！</h1>
-
-    <!-- 纯CSS轮播图 -->
+    <h2 class="section-title">什么酒店越住越年轻，就是Hotel Bangdream！</h2>    <!-- 纯CSS轮播图 -->
     <div class="slideshow">
         <div class="slides">
             <div class="slide">
@@ -47,9 +45,8 @@
             <div class="indicator" onclick="goToSlide(2)"></div>
         </div>
     </div>
-
-    <h2>请选择您的操作：</h2>
-    <ul>
+    <h2 style="margin-bottom: 30px; color: #666;">请选择您的操作：</h2>
+    <div>
         <div class="action-buttons">
             <a th:href="@{/user}" class="action-btn user-btn">
                 <i class="icon-user"></i>
@@ -60,7 +57,7 @@
                 <span>后台管理</span>
             </a>
         </div>
-    </ul>
+    </div>
     <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
 </div>

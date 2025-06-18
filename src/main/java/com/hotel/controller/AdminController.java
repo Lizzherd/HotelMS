@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.math.RoundingMode;
 
 @Controller
 @RequestMapping("/admin")
@@ -636,4 +637,104 @@ public class AdminController {
         redirectAttributes.addFlashAttribute("successMessage", "服务申请已拒绝！");
         return "redirect:/admin/checkins";
     }
+
+    // 管理员为房间添加服务
+    @GetMapping("/checkins/form-addservice-to-checkin/{checkInId}")
+    public String showAddServiceForm(@PathVariable String checkInId, Model model, HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        HttpSession session = request.getSession(false);
+        if (!isAdminLoggedIn(session)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "请先登录。");
+            return "redirect:/admin/login";
+        }
+
+        Optional<CheckIn> checkInOpt = checkInService.getCheckInById(checkInId);
+        if (!checkInOpt.isPresent()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "未找到入住记录ID: " + checkInId);
+            return "redirect:/admin/checkins";
+        }
+
+        CheckIn checkIn = checkInOpt.get();
+        List<ServiceInfo> allServices = serviceInfoService.getAllServiceInfos();
+
+        // 计算会员折扣价
+        BigDecimal discountRate = getMemberDiscountRate(checkIn.getCustomerIdCardNumber());
+
+        // ✅ 查询会员信息
+        Optional<MemberInfo> memberInfoOpt = memberInfoService.getMemberInfoByIdCardNumber(checkIn.getCustomerIdCardNumber());
+        if (memberInfoOpt.isPresent()) {
+            MemberInfo memberInfo = memberInfoOpt.get();
+            model.addAttribute("memberInfo", memberInfo);
+        }
+        model.addAttribute("discountRate", discountRate);
+
+        List<BigDecimal> finalPrices = allServices.stream()
+                .map(service -> BigDecimal.valueOf(service.getServicePrice()).multiply(discountRate)
+                        .setScale(1, RoundingMode.HALF_UP))
+                .collect(Collectors.toList());
+
+        model.addAttribute("checkIn", checkIn);
+        model.addAttribute("allServices", allServices);
+        model.addAttribute("finalPrices", finalPrices);
+
+
+        return "admin/form-addservice-to-checkin";
+    }
+
+    @PostMapping("/checkins/apply-service")
+    public String applyService(@RequestParam String checkInId,
+                               @RequestParam String serviceInfoId,
+                               @RequestParam int quantity,
+                               RedirectAttributes redirectAttributes,
+                               HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (!isAdminLoggedIn(session)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "会话已过期，请重新登录。");
+            return "redirect:/admin/login";
+        }
+
+        try {
+            CheckIn checkIn = checkInService.getCheckInById(checkInId).orElseThrow();
+            ServiceInfo info = serviceInfoService.getServiceInfoById(serviceInfoId).orElseThrow();
+
+            ServiceRequest req = new ServiceRequest();
+            req.setCheckInId(checkInId);
+            req.setCustomerIdCard(checkIn.getCustomerIdCardNumber());
+            req.setServiceInfoId(serviceInfoId);
+            req.setServiceName(info.getServiceName());
+            req.setRoomNumber(checkIn.getRoomNumber());
+            req.setQuantity(quantity);
+
+            // 计算折后价
+            BigDecimal originalPrice = BigDecimal.valueOf(info.getServicePrice());
+            BigDecimal discountRate = getMemberDiscountRate(checkIn.getCustomerIdCardNumber());
+            BigDecimal finalPrice = originalPrice.multiply(discountRate)
+                    .setScale(1, RoundingMode.HALF_UP);
+            req.setUnitPrice(finalPrice);
+
+            serviceRequestService.applyService(req);
+
+            redirectAttributes.addFlashAttribute("successMessage", "服务添加成功！");
+            return "redirect:/admin/checkins/details/" + checkInId;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "添加服务失败: " + e.getMessage());
+            return "redirect:/admin/checkins/form-addservice-to-checkin/" + checkInId;
+        }
+    }
+
+    // 添加这个辅助方法
+    private BigDecimal getMemberDiscountRate(String idCardNumber) {
+        Optional<MemberInfo> memberInfoOpt = memberInfoService.getMemberInfoByIdCardNumber(idCardNumber);
+        if (memberInfoOpt.isPresent()) {
+            MemberInfo memberInfo = memberInfoOpt.get();
+            switch (memberInfo.getMemberLevel()) {
+                case BRONZE: return new BigDecimal("0.95");
+                case SILVER: return new BigDecimal("0.90");
+                case GOLD: return new BigDecimal("0.85");
+                case PLATINUM: return new BigDecimal("0.80");
+                default: return BigDecimal.ONE;
+            }
+        }
+        return BigDecimal.ONE;
+    }
+
 }

@@ -8,6 +8,14 @@
 <body>
 <div th:replace="~{fragments/header :: header}"></div>
 <div class="container">
+
+  <div style="margin-bottom: 20px;">
+    <a th:href="@{/user}" class="return-btn">
+      <i class="fas fa-arrow-left"></i>
+      返回主界面
+    </a>
+  </div>
+
   <h2>用户入住登记</h2>
 
   <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>

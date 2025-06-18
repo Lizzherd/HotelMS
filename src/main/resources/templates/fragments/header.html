@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<!-- src/main/resources/templates/fragments/header.html -->
-<header th:fragment="header">
+<head>
+  <meta charset="UTF-8">
+  <title>邦多利大酒店</title>
   <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header th:fragment="header">
   <nav class="navbar">
     <a th:href="@{/}" class="navbar-brand">邦多利大酒店</a>
     <div class="navbar-links">
@@ -11,4 +15,3 @@
     </div>
   </nav>
 </header>
-
