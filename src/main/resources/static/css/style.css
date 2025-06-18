@@ -178,22 +178,31 @@ form input[type="checkbox"] {
     margin-right: 5px;
 }
 
-/* Buttons */
+/* 基础按钮样式：以蓝色为主，风格统一 */
 .button, button {
     display: inline-block;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
+    background: linear-gradient(135deg, #3498db, #2c3e50); /* 蓝+深色渐变 */
+    color: #ecf0f1;
+    padding: 10px 16px;
     text-decoration: none;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
     margin-right: 5px;
     margin-top: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+
 .button:hover, button:hover {
-    background-color: #0056b3;
+    background: linear-gradient(135deg, #2c3e50, #1c2833); /* 更深一点的蓝灰色渐变 */
+    color: #f9ca24; /* 鼠标悬停时用品牌黄色提亮 */
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transform: translateY(-1px);
 }
+
 .button-edit, .button-delete {
     display: inline-flex;
     align-items: center;
