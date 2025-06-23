@@ -67,8 +67,7 @@ public class RoomServiceImpl implements RoomService {
         }
         if (roomDetails.getPrice() > 0) room.setPrice(roomDetails.getPrice());
         if (roomDetails.getType() != null) room.setType(roomDetails.getType());
-        // isOccupied 状态通常由入住/退房流程控制
-        // room.setOccupied(roomDetails.isOccupied());
+
 
         return roomRepository.save(room);
     }

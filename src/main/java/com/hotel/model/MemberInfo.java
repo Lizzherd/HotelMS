@@ -9,10 +9,10 @@ import java.time.LocalDate;
 @Document(collection = "member_info")
 public class MemberInfo {
     @Id
-    private String id; // 会员ID (MongoDB自动生成)
+    private String id;
 
     @Indexed(unique = true)
-    private String idCardNumber; // 身份证号 (关联Customer, 确保唯一性)
+    private String idCardNumber; // 身份证号
 
     private LocalDate registrationDate; // 注册日期
     private MemberLevel memberLevel; // 会员等级

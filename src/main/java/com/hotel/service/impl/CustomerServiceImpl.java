@@ -59,7 +59,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (customerDetails.getName() != null) customer.setName(customerDetails.getName());
         if (customerDetails.getGender() != null) customer.setGender(customerDetails.getGender());
         if (customerDetails.getContactInfo() != null) customer.setContactInfo(customerDetails.getContactInfo());
-        customer.setMember(customerDetails.isMember()); // isMember通常由会员服务管理
+        customer.setMember(customerDetails.isMember());
 
         return customerRepository.save(customer);
     }
@@ -69,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
         if (!customerRepository.existsById(id)) {
             throw new IllegalArgumentException("未找到客户ID: " + id);
         }
-        // 注意：删除客户前可能需要检查是否有未完成的入住等关联操作
+        // 检查是否有未完成的入住关联操作
         customerRepository.deleteById(id);
     }
 

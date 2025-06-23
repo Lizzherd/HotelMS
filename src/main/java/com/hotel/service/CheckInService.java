@@ -1,9 +1,9 @@
 package com.hotel.service;
 
 import com.hotel.model.CheckIn;
-import com.hotel.model.Customer; // 确保引入
-import com.hotel.model.Room;    // 确保引入
-import com.hotel.model.ServiceInfo; // 确保引入
+import com.hotel.model.Customer;
+import com.hotel.model.Room;
+import com.hotel.model.ServiceInfo;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -8,10 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "rooms")
 public class Room {
     @Id
-    private String id; // MongoDB自动生成的ID
+    private String id;
 
     @Indexed(unique = true)
-    private String roomNumber; // 客房号 (唯一)
+    private String roomNumber; // 客房号
 
     private double price; // 单价
     private boolean isOccupied; // 是否入住

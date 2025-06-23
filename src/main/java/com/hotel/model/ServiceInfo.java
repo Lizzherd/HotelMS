@@ -7,10 +7,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "service_info")
 public class ServiceInfo {
     @Id
-    private String id; // 服务ID (MongoDB自动生成)
+    private String id;
 
     @Indexed(unique = true)
-    private String serviceName; // 服务名称 (应唯一)
+    private String serviceName; // 服务名称
 
     private double servicePrice; // 服务单价
 

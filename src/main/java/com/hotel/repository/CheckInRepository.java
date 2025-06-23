@@ -9,6 +9,6 @@ public interface CheckInRepository extends MongoRepository<CheckIn, String> {
     List<CheckIn> findByCustomerIdCardNumberAndIsActiveTrue(String idCardNumber);
     List<CheckIn> findByRoomNumberAndIsActiveTrue(String roomNumber);
     List<CheckIn> findByIsActiveTrue();
-    List<CheckIn> findByIsActiveFalse(); // 用于查看历史记录中已退房的
-    Optional<CheckIn> findByIdAndIsActiveTrue(String id); // <--- **确保这一行存在**
+    List<CheckIn> findByIsActiveFalse();
+    Optional<CheckIn> findByIdAndIsActiveTrue(String id);
 }

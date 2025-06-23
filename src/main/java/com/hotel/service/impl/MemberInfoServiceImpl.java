@@ -36,11 +36,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         if (memberInfoRepository.findByIdCardNumber(memberInfo.getIdCardNumber()).isPresent()) {
             throw new IllegalArgumentException("该身份证号已注册会员: " + memberInfo.getIdCardNumber());
         }
-        memberInfo.setRegistrationDate(LocalDate.now()); // 设置注册日期
+        memberInfo.setRegistrationDate(LocalDate.now());
         return memberInfoRepository.save(memberInfo);
     }
 
-    @Transactional // 确保客户和会员信息一致性
+    @Transactional
     @Override
     public MemberInfo registerOrUpdateMember(String customerIdCardNumber, MemberLevel level) {
         Customer customer = customerRepository.findByIdCardNumber(customerIdCardNumber)
@@ -51,12 +51,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         if (existingMemberOpt.isPresent()) {
             memberInfo = existingMemberOpt.get();
             memberInfo.setMemberLevel(level);
-            // memberInfo.setRegistrationDate() // 通常注册日期不变
         } else {
             memberInfo = new MemberInfo(customerIdCardNumber, LocalDate.now(), level);
         }
 
-        customer.setMember(true); // 更新客户表中的会员状态
+        customer.setMember(true);
         customerRepository.save(customer);
 
         return memberInfoRepository.save(memberInfo);
@@ -83,12 +82,11 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         MemberInfo memberInfo = memberInfoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到会员ID: " + id));
 
-        // 身份证号通常不应在此处修改，应通过特定流程
-        // if (memberInfoDetails.getIdCardNumber() != null) memberInfo.setIdCardNumber(memberInfoDetails.getIdCardNumber());
+
         if (memberInfoDetails.getMemberLevel() != null) memberInfo.setMemberLevel(memberInfoDetails.getMemberLevel());
         if (memberInfoDetails.getRegistrationDate() != null) memberInfo.setRegistrationDate(memberInfoDetails.getRegistrationDate());
 
-        // 如果会员等级改变，可能需要更新Customer表的isMember状态
+
         Customer customer = customerRepository.findByIdCardNumber(memberInfo.getIdCardNumber()).orElse(null);
         if (customer != null) {
             customer.setMember(memberInfo.getMemberLevel() != MemberLevel.NONE); // 假设NONE为非会员
@@ -104,7 +102,7 @@ public class MemberInfoServiceImpl implements MemberInfoService {
         MemberInfo memberInfo = memberInfoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("未找到会员ID: " + id));
 
-        // 更新Customer表的isMember状态
+
         Customer customer = customerRepository.findByIdCardNumber(memberInfo.getIdCardNumber()).orElse(null);
         if (customer != null) {
             customer.setMember(false);

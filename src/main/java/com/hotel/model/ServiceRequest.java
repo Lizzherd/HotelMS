@@ -11,15 +11,15 @@ public class ServiceRequest {
     @Id
     private String id;
 
-    private String checkInId;         // 入住记录ID
+    private String checkInId;
     private String customerIdCard;    // 客户身份证号
-    private String roomNumber;        // 房间号（便于展示）
+    private String roomNumber;        // 房间号
     private String serviceInfoId;     // 服务项目ID
     private String serviceName;       // 服务名称
     private int quantity;             // 数量
     private BigDecimal unitPrice;     // 单价，新增
     private LocalDateTime requestTime;// 申请时间
-    private String status;            // APPLIED/COMPLETED/REJECTED
+    private String status;            // 三状态APPLIED/COMPLETED/REJECTED
     private String adminNote;         // 管理员备注
     private LocalDateTime completedTime; // 完成时间
 
@@ -59,10 +59,6 @@ public class ServiceRequest {
 
     public LocalDateTime getCompletedTime() { return completedTime; }
     public void setCompletedTime(LocalDateTime completedTime) { this.completedTime = completedTime; }
-
-    /**
-     * 计算服务申请小计金额
-     */
     public BigDecimal getSubtotal() {
         if (unitPrice == null) return BigDecimal.ZERO;
         return unitPrice.multiply(BigDecimal.valueOf(quantity));

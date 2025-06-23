@@ -26,7 +26,7 @@ public class UserCheckinController {
         this.checkInService = checkInService;
     }
 
-    // 显示入住登记表单 GET /user-checkin
+    // 显示入住登记表单
     @GetMapping("")
     public String showCheckInForm(Model model) {
         model.addAttribute("customer", new Customer());
@@ -35,7 +35,7 @@ public class UserCheckinController {
         return "user/user-checkin";
     }
 
-    // 处理入住登记 POST /user-checkin
+    // 处理入住登记
     @PostMapping("")
     public String processCheckInForm(@ModelAttribute Customer customer,
                                      @RequestParam String roomId,
@@ -92,7 +92,7 @@ public class UserCheckinController {
         }
     }
 
-    // AJAX端点：根据身份证号获取客户信息
+    //根据身份证号获取客户信息
     @GetMapping("/api/customer/{idCardNumber}")
     @ResponseBody
     public Customer getCustomerByIdCard(@PathVariable String idCardNumber) {

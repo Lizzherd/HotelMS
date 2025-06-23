@@ -9,24 +9,24 @@ import java.util.List;
 @Document(collection = "check_ins")
 public class CheckIn {
     @Id
-    private String id; // 入住登记ID (MongoDB自动生成)
+    private String id; // 入住登记ID
 
-    private String customerId; // 关联的客户ID (Customer.id)
-    private String customerName; // 客户姓名 (冗余)
-    private String customerIdCardNumber; // 客户身份证号 (冗余)
+    private String customerId; // 关联的客户ID (
+    private String customerName; // 客户姓名
+    private String customerIdCardNumber; // 客户身份证号
 
-    private String roomId; // 关联的客房ID (Room.id)
-    private String roomNumber; // 客房号 (冗余)
+    private String roomId; // 关联的客房ID
+    private String roomNumber; // 客房号
 
     private LocalDate checkInDate; // 入住日期
     private LocalDate expectedCheckOutDate; // 预计离店日期
-    private LocalDate actualCheckOutDate; // 实际离店日期 (可为空)
+    private LocalDate actualCheckOutDate; // 实际离店日期
 
     private List<CheckInServiceItem> services; // 入住期间选择的服务列表
     private double roomCost; // 房间费用
     private double servicesCost; // 服务总费用
-    private double totalAmount; // 总费用 (roomCost + servicesCost)
-    private boolean isActive; // 是否当前有效入住（未退房）
+    private double totalAmount; // 总费用
+    private boolean isActive; // 是否未退房
 
     public CheckIn() {
         this.services = new ArrayList<>();
@@ -42,15 +42,12 @@ public class CheckIn {
         this.roomId = roomId;
         this.roomNumber = roomNumber;
         this.expectedCheckOutDate = expectedCheckOutDate;
-        // 简单计算房间费用，实际可能需要按天数计算
-        this.roomCost = roomPricePerNight; // 这里假设是总的房间费用，或入住时的单晚价格，后续计算总费用时再处理天数
+        this.roomCost = roomPricePerNight;
         calculateTotalAmount();
     }
 
     public void calculateTotalAmount() {
         this.servicesCost = services.stream().mapToDouble(CheckInServiceItem::getSubtotal).sum();
-        // 注意：roomCost的计算可能需要更复杂的逻辑，例如根据入住天数。
-        // 这里暂时简化处理，假设roomCost是入住时的总房费或需在服务层计算。
         this.totalAmount = this.roomCost + this.servicesCost;
     }
 

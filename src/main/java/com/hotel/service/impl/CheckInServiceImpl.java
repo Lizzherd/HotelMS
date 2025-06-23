@@ -1,6 +1,6 @@
 package com.hotel.service.impl;
 
-import com.hotel.model.*; // 确保引入
+import com.hotel.model.*;
 import com.hotel.repository.CheckInRepository;
 import com.hotel.service.CheckInService;
 import com.hotel.service.RoomService;
@@ -21,7 +21,7 @@ public class CheckInServiceImpl implements CheckInService {
     private final CheckInRepository checkInRepository;
     private final RoomService roomService;
     private final ServiceInfoService serviceInfoService;
-    private final ServiceRequestService serviceRequestService;// 确保注入
+    private final ServiceRequestService serviceRequestService;
 
     @Autowired
     public CheckInServiceImpl(CheckInRepository checkInRepository, RoomService roomService, ServiceInfoService serviceInfoService, ServiceRequestService serviceRequestService) {
@@ -60,6 +60,7 @@ public class CheckInServiceImpl implements CheckInService {
 
         return savedCheckIn;
     }
+    
 
     @Override
     public Optional<CheckIn> getCheckInById(String id) {
@@ -68,7 +69,7 @@ public class CheckInServiceImpl implements CheckInService {
 
     @Override // <--- **确保有 @Override 注解**
     public Optional<CheckIn> getActiveCheckInById(String id) {
-        return checkInRepository.findByIdAndIsActiveTrue(id); // 假设 CheckInRepository 中有此方法
+        return checkInRepository.findByIdAndIsActiveTrue(id);
     }
 
     @Override
@@ -88,13 +89,13 @@ public class CheckInServiceImpl implements CheckInService {
 
     @Override
     public List<CheckIn> getAllCheckInHistory() {
-        return checkInRepository.findAll(); // 或者 findByIsActiveFalse()
+        return checkInRepository.findAll();
     }
 
     @Override
     @Transactional
     public CheckIn addServiceToCheckIn(String checkInId, ServiceInfo serviceInfoModel, int quantity) {
-        CheckIn checkIn = getActiveCheckInById(checkInId) // 此处调用本类的方法
+        CheckIn checkIn = getActiveCheckInById(checkInId)
                 .orElseThrow(() -> new IllegalArgumentException("未找到有效的入住记录ID: " + checkInId + "，或该入住已结束。"));
 
         if (quantity <= 0) {
@@ -103,7 +104,7 @@ public class CheckInServiceImpl implements CheckInService {
 
         // ServiceInfo serviceInfoModel = serviceInfoService.getServiceInfoById(serviceInfoId)
         // .orElseThrow(() -> new IllegalArgumentException("无效的服务ID: " + serviceInfoId));
-        // ^^^ Controller 现在直接传递 ServiceInfo 对象，所以这行不需要了
+        // Controller 现在直接传递 ServiceInfo 对象，所以这行不需要了
 
         CheckInServiceItem item = new CheckInServiceItem(
                 serviceInfoModel.getId(),
@@ -132,7 +133,7 @@ public class CheckInServiceImpl implements CheckInService {
 
         checkIn.setRoomCost(room.getPrice() * actualNights);
 
-        // 这里统计所有已完成的服务费用
+        // 统计所有已完成的服务费用
         List<ServiceRequest> completedRequests = serviceRequestService.findByCheckInId(checkInId).stream()
                 .filter(req -> "COMPLETED".equals(req.getStatus()))
                 .toList();
@@ -161,8 +162,5 @@ public class CheckInServiceImpl implements CheckInService {
     @Transactional
     public void deleteAllCheckIns() {
         checkInRepository.deleteAll();
-        // 注意：如果 Room 表中还有 isOccupied 字段，理论上在删除所有 CheckIn 后，
-        // 应该将所有 Room 的 isOccupied 更新为 false。
-        // 但由于我们也会删除所有 Room，所以这一步可以省略。
     }
 }

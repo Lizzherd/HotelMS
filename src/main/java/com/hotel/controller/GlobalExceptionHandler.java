@@ -30,8 +30,6 @@ public class GlobalExceptionHandler {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("errorMessage", "请求参数无效: " + ex.getMessage());
         modelAndView.addObject("url", request.getRequestURL());
-        // 可以根据请求来源判断是返回错误页面还是重定向并附带flash消息
-        // 这里简单返回错误页面
         modelAndView.setViewName("error");
         return modelAndView;
     }

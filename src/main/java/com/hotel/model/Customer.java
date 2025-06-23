@@ -8,16 +8,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "customers")
 public class Customer {
     @Id
-    private String id; // MongoDB自动生成的ID
+    private String id;
 
     private String name; // 姓名
     private Gender gender; // 性别
 
     @Indexed(unique = true)
-    private String idCardNumber; // 身份证号 (唯一)
+    private String idCardNumber; // 身份证号
 
     private String contactInfo; // 联系方式
-    private boolean isMember;   // 是否为会员 (可以根据MemberInfo表关联查询，或冗余存储)
+    private boolean isMember;   // 是否为会员
 
     public Customer() {
     }

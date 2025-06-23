@@ -3,9 +3,9 @@ package com.hotel.model;
 // 这个类将作为CheckIn文档的内嵌对象，不单独作为Document
 public class CheckInServiceItem {
     private String serviceInfoId; // 关联的服务ID
-    private String serviceName;   // 服务名称 (冗余存储，方便显示)
+    private String serviceName;   // 服务名称
     private int quantity;         // 数量
-    private double unitPrice;     // 单价 (冗余存储，防止服务价格变动影响历史记录)
+    private double unitPrice;     // 单价
     private double subtotal;      // 小计 (quantity * unitPrice)
 
     public CheckInServiceItem() {

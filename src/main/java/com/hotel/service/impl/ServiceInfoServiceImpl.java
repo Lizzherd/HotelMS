@@ -65,7 +65,7 @@ public class ServiceInfoServiceImpl implements ServiceInfoService {
         if (!serviceInfoRepository.existsById(id)) {
             throw new IllegalArgumentException("未找到服务ID: " + id);
         }
-        // 注意：删除服务前可能需要检查是否有入住记录关联此服务
+
         serviceInfoRepository.deleteById(id);
     }
 
