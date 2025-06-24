@@ -10,5 +10,7 @@ public interface RoomRepository extends MongoRepository<Room, String> {
     Optional<Room> findByRoomNumber(String roomNumber);
     List<Room> findByIsOccupiedFalse();
     List<Room> findByTypeAndIsOccupiedFalse(RoomType type);
+    Optional<Room> findFirstByTypeAndIsOccupiedFalse(RoomType roomType);
+    long countByTypeAndIsOccupiedFalse(RoomType roomType);
     boolean existsByRoomNumber(String roomNumber);
 }

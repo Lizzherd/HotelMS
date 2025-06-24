@@ -2,13 +2,15 @@ package com.hotel.controller;
 
 import com.hotel.model.*;
 import com.hotel.model.enums.Gender;
+import com.hotel.model.enums.RoomType;
 import com.hotel.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user-checkin")
@@ -20,7 +22,7 @@ public class UserCheckinController {
 
     @Autowired
     public UserCheckinController(CustomerService customerService, RoomService roomService,
-                                 CheckInService checkInService, ServiceInfoService serviceInfoService) {
+                                 CheckInService checkInService) {
         this.customerService = customerService;
         this.roomService = roomService;
         this.checkInService = checkInService;
@@ -30,20 +32,30 @@ public class UserCheckinController {
     @GetMapping("")
     public String showCheckInForm(Model model) {
         model.addAttribute("customer", new Customer());
-        model.addAttribute("availableRooms", roomService.getAvailableRooms());
         model.addAttribute("genders", Gender.values());
+
+        // 添加房间类型及其可用数量
+        Map<RoomType, Long> roomTypeCounts = Arrays.stream(RoomType.values())
+                .collect(Collectors.toMap(
+                        type -> type,
+                        type -> roomService.countAvailableRoomsByType(type)
+                ));
+
+
+        model.addAttribute("roomTypeCounts", roomTypeCounts);
         return "user/user-checkin";
     }
 
     // 处理入住登记
     @PostMapping("")
     public String processCheckInForm(@ModelAttribute Customer customer,
-                                     @RequestParam String roomId,
+                                     @RequestParam String roomTypeId, // 修改为接收roomTypeId
                                      @RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) LocalDate expectedCheckOutDate,
                                      Model model) {
-        model.addAttribute("availableRooms", roomService.getAvailableRooms());
         model.addAttribute("genders", Gender.values());
+
         try {
+            // 1. 处理客户信息
             Optional<Customer> existingCustomerOpt = customerService.getCustomerByIdCardNumber(customer.getIdCardNumber());
             Customer currentCustomer;
             if (existingCustomerOpt.isPresent()) {
@@ -64,25 +76,38 @@ public class UserCheckinController {
                 currentCustomer = customerService.createCustomer(customer);
             }
 
-            Room room = roomService.getRoomById(roomId)
-                    .orElseThrow(() -> new IllegalArgumentException("无效的房间ID: " + roomId));
+            // 2. 获取一个可用的房间
+            RoomType roomType = RoomType.valueOf(roomTypeId);
+            Optional<Room> availableRoom = roomService.findFirstAvailableRoomByType(roomType);
 
-            if (room.isOccupied()) {
-                model.addAttribute("errorMessage", "房间 " + room.getRoomNumber() + " 刚刚已被预订，请选择其他房间。");
+            if (!availableRoom.isPresent()) {
+                model.addAttribute("errorMessage", "所选房间类型已无空房，请选择其他类型。");
                 model.addAttribute("customer", customer);
                 return "user/user-checkin";
             }
 
+            Room room = availableRoom.get();
+
+            // 3. 验证离店日期
             if (expectedCheckOutDate == null || expectedCheckOutDate.isBefore(LocalDate.now().plusDays(1))) {
                 model.addAttribute("errorMessage", "预计离店日期必须是明天或之后。");
                 model.addAttribute("customer", customer);
                 return "user/user-checkin";
             }
 
+            // 4. 处理入住
             CheckIn checkIn = checkInService.processCheckIn(currentCustomer, room, expectedCheckOutDate);
             model.addAttribute("successMessage", "入住登记成功！房间号：" + room.getRoomNumber());
-            // 清空表单
             model.addAttribute("customer", new Customer());
+
+            // 重新加载房间类型数据
+            Map<RoomType, Long> roomTypeCounts = Arrays.stream(RoomType.values())
+                    .collect(Collectors.toMap(
+                            type -> type,
+                            type -> roomService.countAvailableRoomsByType(type)
+                    ));
+            model.addAttribute("roomTypeCounts", roomTypeCounts);
+
             return "user/user-checkin";
 
         } catch (IllegalArgumentException | IllegalStateException e) {
@@ -92,7 +117,7 @@ public class UserCheckinController {
         }
     }
 
-    //根据身份证号获取客户信息
+    // 根据身份证号获取客户信息
     @GetMapping("/api/customer/{idCardNumber}")
     @ResponseBody
     public Customer getCustomerByIdCard(@PathVariable String idCardNumber) {

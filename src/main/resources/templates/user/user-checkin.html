@@ -49,30 +49,37 @@
 
     <fieldset>
       <legend>入住信息</legend>
+      <!-- 房间类型选择 -->
       <div>
-        <label for="roomId">选择房间:</label>
-        <select id="roomId" name="roomId" required="required">
-          <option value="">请选择可用房间</option>
-          <option th:each="room : ${availableRooms}"
-                  th:value="${room.id}"
-                  th:text="${room.roomNumber + ' - ' + room.type.description + ' (￥' + room.price + ')'}"></option>
+        <label for="roomType">选择房间类型:</label>
+        <select id="roomType" name="roomTypeId" required="required">
+          <option value="">请选择房间类型</option>
+          <option th:each="entry : ${roomTypeCounts}"
+                  th:value="${entry.key}"
+                  th:text="${entry.key.description}
+                      + '（¥' + ${#numbers.formatDecimal(entry.key.price, 1, 2)}
+                      + '/每晚 ，剩余：' + ${entry.value} + '间）'"
+                  th:disabled="${entry.value == 0}">
+          </option>
         </select>
       </div>
-      <div>
+
         <label for="expectedCheckOutDate">预计离店日期:</label>
         <input type="date" id="expectedCheckOutDate" name="expectedCheckOutDate" required="required"/>
+      <button type="submit">提交入住</button>
+      <div style="margin-top:40px;">
+        <h3>提示</h3>
+        <div class="alert alert-info">
+          入住登记成功后，您可以在 <a th:href="@{/user-service}">服务申请页面</a> 申请客房服务，并随时查看您的服务进度。
+        </div>
+      </div>
       </div>
     </fieldset>
 
-    <button type="submit">提交入住</button>
+
   </form>
 
-  <div style="margin-top:40px;">
-    <h3>提示</h3>
-    <div class="alert alert-info">
-      入住登记成功后，您可以在 <a th:href="@{/user-service}">服务申请页面</a> 申请客房服务，并随时查看您的服务进度。
-    </div>
-  </div>
+
 </div>
 
 <div th:replace="~{fragments/footer :: footer}"></div>

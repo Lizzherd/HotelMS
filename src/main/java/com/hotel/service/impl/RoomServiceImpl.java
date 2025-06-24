@@ -53,6 +53,15 @@ public class RoomServiceImpl implements RoomService {
     public List<Room> getAvailableRoomsByType(RoomType type) {
         return roomRepository.findByTypeAndIsOccupiedFalse(type);
     }
+    @Override
+    public long countAvailableRoomsByType(RoomType roomType) {
+        return roomRepository.countByTypeAndIsOccupiedFalse(roomType);
+    }
+
+    @Override
+    public Optional<Room> findFirstAvailableRoomByType(RoomType roomType) {
+        return roomRepository.findFirstByTypeAndIsOccupiedFalse(roomType);
+    }
 
     @Override
     public Room updateRoom(String id, Room roomDetails) {

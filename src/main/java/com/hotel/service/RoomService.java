@@ -11,6 +11,8 @@ public interface RoomService {
     Optional<Room> getRoomByRoomNumber(String roomNumber);
     List<Room> getAllRooms();
     List<Room> getAvailableRooms();
+    long countAvailableRoomsByType(RoomType roomType);
+    Optional<Room> findFirstAvailableRoomByType(RoomType roomType);
     List<Room> getAvailableRoomsByType(RoomType type);
     Room updateRoom(String id, Room roomDetails);
     void deleteRoom(String id);

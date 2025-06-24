@@ -27,17 +27,22 @@
             </div>
             <div>
                 <label for="type">房间类型:</label>
-                <select id="type" th:field="*{type}" required="required">
+                <select id="type" name="type" required="required">
                     <option value="">请选择类型</option>
-                    <option th:each="rt : ${roomTypes}" th:value="${rt}" th:text="${rt.description}"></option>
+                    <option th:each="rt : ${roomTypes}"
+                            th:value="${rt.name()}"
+                            th:text="${rt.description}"
+                            th:data-price="${rt.price}"></option>
                 </select>
                 <span th:if="${#fields.hasErrors('type')}" th:errors="*{type}" class="error-message"></span>
             </div>
+
             <div>
                 <label for="price">单价 (元/晚):</label>
-                <input type="number" id="price" th:field="*{price}" step="0.01" min="0" required="required" />
+                <input type="number" id="price" name="price" step="0.01" min="0" required="required" readonly />
                 <span th:if="${#fields.hasErrors('price')}" th:errors="*{price}" class="error-message"></span>
             </div>
+
 
             <!-- isOccupied 状态通常由系统自动管理，不在此处编辑 -->
             <!-- <div th:if="${room.id != null}">
@@ -53,5 +58,23 @@
     </main>
 </div>
 <div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const typeSelect = document.getElementById('type');
+      const priceInput = document.getElementById('price');
+
+      typeSelect.addEventListener('change', function () {
+        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+        const price = selectedOption.getAttribute('data-price');
+        if (price) {
+          priceInput.value = price;
+        } else {
+          priceInput.value = '';
+        }
+      });
+    });
+</script>
+
 </body>
 </html>
