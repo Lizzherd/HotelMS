@@ -126,13 +126,17 @@ public class CheckInServiceImpl implements CheckInService {
         checkIn.setActive(false);
 
         long actualNights = ChronoUnit.DAYS.between(checkIn.getCheckInDate(), checkIn.getActualCheckOutDate());
+        System.out.println("checkIn.getCheckInDate()：" + checkIn.getCheckInDate());
+        System.out.println("checkIn.getActualCheckOutDate()：" + checkIn.getActualCheckOutDate());
+
         if (actualNights <= 0) actualNights = 1;
+        System.out.println("天数：" + actualNights);
 
         Room room = roomService.getRoomById(checkIn.getRoomId())
                 .orElseThrow(() -> new IllegalStateException("退房时找不到房间信息: " + checkIn.getRoomNumber()));
 
         checkIn.setRoomCost(room.getPrice() * actualNights);
-
+        System.out.println("应收房间金额：" + checkIn.getRoomCost());
         // 统计所有已完成的服务费用
         List<ServiceRequest> completedRequests = serviceRequestService.findByCheckInId(checkInId).stream()
                 .filter(req -> "COMPLETED".equals(req.getStatus()))
@@ -140,9 +144,11 @@ public class CheckInServiceImpl implements CheckInService {
         double serviceTotal = completedRequests.stream()
                 .mapToDouble(req -> req.getSubtotal().doubleValue())
                 .sum();
-
+        System.out.println("应收服务总金额：" + serviceTotal);
         // 合计房费和服务费
         checkIn.setTotalAmount(checkIn.getRoomCost() + serviceTotal);
+
+        System.out.println("应收总金额：" + checkIn.getTotalAmount());
 
         CheckIn updatedCheckIn = checkInRepository.save(checkIn);
         roomService.updateRoomOccupancy(checkIn.getRoomId(), false);
